@@ -10,7 +10,8 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - app-network
+      app-network:
+        ipv4_address: 172.20.0.2
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -19,25 +20,37 @@ services:
       - "5672:5672"
       - "15672:15672"
     networks:
-      - app-network
+      app-network:
+        ipv4_address: 172.20.0.3
 
   consul:
     image: consul:1.15
     container_name: consul
     ports:
       - "8500:8500"
-    command: agent -server -bootstrap-expect=1 -ui -client=0.0.0.0
+    command: agent -server -bootstrap-expect=1 -ui -client=0.0.0.0 -config-dir=/consul/config
+    volumes:
+      - ./consul-config.json:/consul/config/services.json
     networks:
-      - app-network
+      app-network:
+        ipv4_address: 172.20.0.4
 
   traefik:
-    image: traefik:v3.0
+    image: traefik:v2.11
     container_name: traefik
     ports:
       - "80:80"
       - "8080:8080"
+    command:
+      - --api.insecure=true
+      - --providers.consul=true
+      - --providers.consul.endpoint=consul:8500
+      - --entrypoints.web.address=:80
     networks:
-      - app-network
+      app-network:
+        ipv4_address: 172.20.0.5
+    depends_on:
+      - consul
 
   auth-service:
     build: ./auth-service
@@ -54,7 +67,8 @@ services:
       - DATABASE_PASSWORD=postgres
       - RABBITMQ_HOST=rabbitmq
     networks:
-      - app-network
+      app-network:
+        ipv4_address: 172.20.0.10
 
   trip-service:
     build: ./Trip_service
@@ -71,7 +85,8 @@ services:
       - DATABASE_PASSWORD=postgres
       - AUTH_SERVICE_URL=http://auth-service:8081
     networks:
-      - app-network
+      app-network:
+        ipv4_address: 172.20.0.11
 
   booking-service:
     build: ./booking-service
@@ -94,7 +109,8 @@ services:
       - PAYMENT_SERVICE_URL=http://payment-service:8000
       - RABBITMQ_HOST=rabbitmq
     networks:
-      - app-network
+      app-network:
+        ipv4_address: 172.20.0.12
 
   payment-service:
     build: ./payment-service
@@ -111,7 +127,8 @@ services:
       - DATABASE_PASSWORD=postgres
       - RABBITMQ_HOST=rabbitmq
     networks:
-      - app-network
+      app-network:
+        ipv4_address: 172.20.0.13
 
   search-service:
     build: ./search-service
@@ -128,7 +145,8 @@ services:
       - DATABASE_PASSWORD=postgres
       - TRIP_SERVICE_URL=http://trip-service:8002/api
     networks:
-      - app-network
+      app-network:
+        ipv4_address: 172.20.0.14
 
   frontend:
     build: ./covoiturage-frontend
@@ -148,7 +166,8 @@ services:
       - PAYMENT_SERVICE_URL=http://payment-service:8000
       - SEARCH_SERVICE_URL=http://search-service:8003/api
     networks:
-      - app-network
+      app-network:
+        ipv4_address: 172.20.0.15
 
   notification-consumer:
     build: ./covoiturage-frontend
@@ -156,7 +175,8 @@ services:
     container_name: notification-consumer
     restart: always
     networks:
-      - app-network
+      app-network:
+        ipv4_address: 172.20.0.16
     depends_on:
       - rabbitmq
     environment:
@@ -166,6 +186,9 @@ services:
 networks:
   app-network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
 
 volumes:
   postgres_data:

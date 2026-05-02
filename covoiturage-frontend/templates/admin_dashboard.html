@@ -15,153 +15,379 @@ nav.navbar{display:none!important;}
 }
 .adm{display:flex;min-height:100vh;background:#F0F4FF;}
 
-/* SIDEBAR */
-.sb{width:var(--sb);flex-shrink:0;background:var(--adm-ink);border-right:1px solid var(--adm-border);position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:100;overflow:hidden;}
-.sb-logo{padding:22px 20px;border-bottom:1px solid var(--adm-border);display:flex;align-items:center;gap:10px;}
+/* ══════════════════════════════════════════
+   SIDEBAR — FIX FOOTER
+   La clé : sb est un flex column avec height:100vh
+   sb-nav prend flex:1 + min-height:0 + overflow-y:auto
+   sb-foot est flex-shrink:0 → toujours visible en bas
+══════════════════════════════════════════ */
+.sb{
+  width:var(--sb);
+  background:var(--adm-ink);
+  border-right:1px solid var(--adm-border);
+  position:fixed; top:0; left:0;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  z-index:100;
+  overflow:hidden;
+}
+.sb-logo{ padding:20px; border-bottom:1px solid var(--adm-border); flex-shrink:0; }
+.sb-nav{
+  flex:1;
+  min-height:0;       
+  overflow-y:auto;
+  padding:14px 10px;
+}
 .sb-logo-text{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:white;letter-spacing:-0.3px;}
 .sb-logo-text span{color:var(--blue);}
 .sb-badge{font-size:9px;font-weight:700;background:rgba(0,82,255,0.2);border:1px solid rgba(0,82,255,0.3);color:rgba(255,255,255,0.6);border-radius:4px;padding:2px 6px;margin-top:1px;display:block;}
-.sb-nav{flex:1;overflow-y:auto;padding:16px 12px;}
-.sb-sec{font-size:9px;font-weight:700;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:1.2px;padding:10px 10px 6px;}
-.sb-item{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:8px;cursor:pointer;color:rgba(255,255,255,0.45);font-size:13px;font-weight:500;transition:all 0.15s;margin-bottom:2px;position:relative;text-decoration:none;}
+
+/* scrollbar discrète sur la nav */
+.sb-nav::-webkit-scrollbar{width:3px;}
+.sb-nav::-webkit-scrollbar-track{background:transparent;}
+.sb-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:2px;}
+.sb-sec{font-size:9px;font-weight:700;color:rgba(255,255,255,0.22);text-transform:uppercase;letter-spacing:1.2px;padding:10px 10px 5px;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:7px;cursor:pointer;color:rgba(255,255,255,0.42);font-size:13px;font-weight:500;transition:all 0.15s;margin-bottom:2px;position:relative;text-decoration:none;}
 .sb-item:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.8);}
 .sb-item.active{background:var(--adm-active);color:white;}
 .sb-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:60%;background:var(--blue);border-radius:0 3px 3px 0;}
-.sb-item i{width:16px;font-size:14px;flex-shrink:0;opacity:0.8;}
+.sb-item i{width:16px;font-size:13px;flex-shrink:0;opacity:0.8;}
 .sb-item.active i{opacity:1;}
-.sb-badge2{margin-left:auto;background:var(--blue);color:white;font-size:9px;font-weight:700;border-radius:10px;padding:1px 6px;}
+.sb-badge2{margin-left:auto;background:var(--blue);color:white;font-size:9px;font-weight:700;border-radius:10px;padding:1px 6px;flex-shrink:0;}
 .sb-badge2.red{background:var(--err);}
-/* Footer sidebar — FIX: hauteur fixe, pas de flex:1 */
-.sb-foot{padding:14px 12px;border-top:1px solid var(--adm-border);flex-shrink:0; background:var(--adm-ink);  position:relative; z-index:10;}
+.sb-foot{
+  flex-shrink:0;      
+  padding:12px 10px;
+  border-top:1px solid var(--adm-border);
+  background:var(--adm-ink);
+}
 .sb-profile{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;cursor:pointer;}
 .sb-profile:hover{background:rgba(255,255,255,0.05);}
-.sb-av{width:32px;height:32px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;flex-shrink:0;}
-.sb-pname{font-size:13px;font-weight:600;color:white;}
+.sb-av{width:30px;height:30px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:700;flex-shrink:0;}
+.sb-pname{font-size:13px;font-weight:600;color:white;line-height:1.2;}
 .sb-prole{font-size:10px;color:rgba(255,255,255,0.3);}
 
-/* MAIN */
+/* ══ MAIN ══ */
 .adm-main{margin-left:var(--sb);flex:1;display:flex;flex-direction:column;min-height:100vh;}
-/* TOPBAR — FIX: on retire la search box dupliquée, on garde juste le titre + actions */
-.adm-topbar{height:58px;background:white;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:40;box-shadow:0 1px 8px rgba(0,30,100,0.05);}
-.adm-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--ink);}
-.adm-topbar-right{display:flex;align-items:center;gap:10px;}
-
-.adm-content{padding:24px 28px;flex:1;}
+.adm-topbar{height:56px;background:white;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 26px;position:sticky;top:0;z-index:40;box-shadow:0 1px 6px rgba(0,30,100,0.05);}
+.adm-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--ink);}
+.adm-content{padding:22px 26px;flex:1;}
 .page-view{display:none;}.page-view.active{display:block;}
 
-/* STAT CARDS */
-.st-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
-.st-card{background:white;border:1px solid var(--border);border-radius:var(--r);padding:20px;box-shadow:var(--sh);transition:all 0.2s;position:relative;overflow:hidden;}
+/* ══ STATS ══ */
+.st-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.st-card{background:white;border:1px solid var(--border);border-radius:var(--r);padding:18px;box-shadow:var(--sh);transition:all 0.2s;}
 .st-card:hover{box-shadow:var(--sh-md);transform:translateY(-1px);}
-.st-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
-.st-icon i{font-size:16px;}
-.st-card.blue .st-icon{background:var(--blue-lt);}
-.st-card.blue .st-icon i{color:var(--blue);}
-.st-card.green .st-icon{background:var(--ok-bg);}
-.st-card.green .st-icon i{color:var(--ok);}
-.st-card.amber .st-icon{background:var(--warn-bg);}
-.st-card.amber .st-icon i{color:var(--warn);}
-.st-card.red .st-icon{background:var(--err-bg);}
-.st-card.red .st-icon i{color:var(--err);}
-.st-lbl{font-size:11px;font-weight:600;color:var(--ink4);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:6px;}
-.st-val{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--ink);letter-spacing:-0.5px;line-height:1;}
-.st-sub{font-size:11px;color:var(--ink4);margin-top:5px;}
+.st-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;}
+.st-icon i{font-size:15px;}
+.st-card.blue .st-icon{background:var(--blue-lt);}  .st-card.blue .st-icon i{color:var(--blue);}
+.st-card.green .st-icon{background:var(--ok-bg);}   .st-card.green .st-icon i{color:var(--ok);}
+.st-card.amber .st-icon{background:var(--warn-bg);} .st-card.amber .st-icon i{color:var(--warn);}
+.st-card.red .st-icon{background:var(--err-bg);}    .st-card.red .st-icon i{color:var(--err);}
+.st-lbl{font-size:10px;font-weight:700;color:var(--ink4);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:5px;}
+.st-val{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--ink);letter-spacing:-0.5px;line-height:1;}
+.st-sub{font-size:11px;color:var(--ink4);margin-top:4px;}
 
-/* GRID LAYOUTS */
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;}
-.g3{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:18px;}
+/* ══ GRILLES ══ */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+.g3{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:16px;}
 
-/* CARDS */
+/* ══ CARDS ══ */
 .ac{background:white;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);}
-.ac-h{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);background:var(--bg);}
+.ac-h{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--border);background:var(--bg);}
 .ac-lbl{font-size:11px;font-weight:700;color:var(--ink4);text-transform:uppercase;letter-spacing:0.8px;display:flex;align-items:center;gap:7px;}
 .ac-lbl i{color:var(--blue);}
 .ac-action{font-size:12px;color:var(--blue);cursor:pointer;font-weight:600;}
-.ac-b{padding:18px;}
+.ac-b{padding:16px;}
 
-/* BAR CHART */
-.bar-chart{display:flex;align-items:flex-end;gap:8px;height:120px;}
+/* ══ BAR CHART ══ */
+.bar-chart{display:flex;align-items:flex-end;gap:7px;height:110px;}
 .bc{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;}
 .bbar{width:100%;height:100%;background:var(--bg2);border-radius:5px 5px 0 0;position:relative;overflow:hidden;}
 .bfill{position:absolute;bottom:0;left:0;width:100%;background:var(--blue);border-radius:5px 5px 0 0;transition:height 0.6s cubic-bezier(.22,.68,0,1.2);}
-.bfill.dim{background:rgba(0,82,255,0.25);}
-.blbl{font-size:10px;color:var(--ink4);}
+.blbl{font-size:9px;color:var(--ink4);}
 
-/* ACTIVITY FEED */
-.feed-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+/* ══ FEED ══ */
+.feed-item{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);}
 .feed-item:last-child{border-bottom:none;}
 .feed-dot-wrap{display:flex;flex-direction:column;align-items:center;padding-top:3px;}
 .fdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 .fline{width:1.5px;flex:1;background:var(--border);margin-top:4px;}
 .feed-item:last-child .fline{display:none;}
-.feed-txt{font-size:13px;color:var(--ink3);line-height:1.5;}
+.feed-txt{font-size:12px;color:var(--ink3);line-height:1.5;}
 .feed-txt strong{color:var(--ink);font-weight:600;}
-.feed-time{font-size:11px;color:var(--ink4);margin-top:2px;}
+.feed-time{font-size:10px;color:var(--ink4);margin-top:2px;}
 
-/* TABLES */
+/* ══ TABLES ══ */
 .adm-tbl-wrap{overflow-x:auto;}
 .adm-tbl{width:100%;border-collapse:collapse;}
-.adm-tbl thead th{font-size:11px;font-weight:700;color:var(--ink4);text-transform:uppercase;letter-spacing:0.6px;padding:10px 14px 12px;text-align:left;border-bottom:1px solid var(--border);background:var(--bg);}
+.adm-tbl thead th{font-size:10px;font-weight:700;color:var(--ink4);text-transform:uppercase;letter-spacing:0.6px;padding:9px 12px 11px;text-align:left;border-bottom:1px solid var(--border);background:var(--bg);}
 .adm-tbl tbody tr{border-bottom:1px solid var(--border);transition:background 0.1s;}
 .adm-tbl tbody tr:last-child{border-bottom:none;}
 .adm-tbl tbody tr:hover td{background:var(--bg);}
-.adm-tbl tbody td{padding:11px 14px;font-size:13px;color:var(--ink3);vertical-align:middle;}
+.adm-tbl tbody td{padding:10px 12px;font-size:12px;color:var(--ink3);vertical-align:middle;}
 .adm-tbl tbody td:first-child{color:var(--ink);font-weight:500;}
-.adm-tbl .mono{font-family:'DM Mono',monospace;font-size:11px;color:var(--ink4);}
+.mono{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink4);}
 
-/* FILTER BAR — une seule, intégrée dans chaque page */
-.filter-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
-.filter-search{display:flex;align-items:center;gap:7px;background:white;border:1.5px solid var(--border);border-radius:var(--rsm);padding:8px 13px;transition:border-color 0.15s;}
+/* ══ FILTER BAR ══ */
+.filter-bar{display:flex;gap:8px;margin-bottom:12px;}
+.filter-search{display:flex;align-items:center;gap:7px;background:white;border:1.5px solid var(--border);border-radius:var(--rsm);padding:7px 12px;transition:border-color 0.15s;}
 .filter-search:focus-within{border-color:var(--blue);}
-.filter-search i{color:var(--ink4);font-size:13px;}
-.filter-search input{border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:transparent;width:220px;}
-.filter-search input::placeholder{color:var(--ink4);}
+.filter-search i{color:var(--ink4);font-size:12px;}
+.filter-search input{border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:transparent;width:200px;}
 
-/* DONUT */
+/* ══ DONUT ══ */
 .donut-wrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
-.donut-legend{display:flex;flex-direction:column;gap:9px;}
+.donut-legend{display:flex;flex-direction:column;gap:8px;}
 .dl-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2);}
-.dl-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+.dl-dot{width:9px;height:9px;border-radius:3px;flex-shrink:0;}
 
-/* SETTINGS PAGE */
-.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
-.settings-section{background:white;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);}
-.settings-section h3{font-size:13px;font-weight:700;color:var(--ink);padding:16px 20px;border-bottom:1px solid var(--border);background:var(--bg);margin:0;display:flex;align-items:center;gap:8px;}
-.settings-section h3 i{color:var(--blue);}
-.settings-body{padding:20px;}
-.settings-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);}
-.settings-row:last-child{border-bottom:none;}
-.settings-row label{font-size:13px;color:var(--ink3);font-weight:500;}
-.settings-row .settings-val{font-size:13px;color:var(--ink4);}
-.settings-info{font-size:12px;color:var(--ink4);margin-top:4px;}
-.toggle{position:relative;display:inline-block;width:40px;height:22px;}
-.toggle input{opacity:0;width:0;height:0;}
-.toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#CBD5E1;border-radius:22px;transition:.3s;}
-.toggle-slider:before{position:absolute;content:"";height:16px;width:16px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.3s;}
-.toggle input:checked + .toggle-slider{background:var(--blue);}
-.toggle input:checked + .toggle-slider:before{transform:translateX(18px);}
-.btn-settings{background:var(--blue);color:white;border:none;border-radius:var(--rsm);padding:8px 16px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:background 0.15s;}
-.btn-settings:hover{background:#0040CC;}
-.btn-settings.danger{background:var(--err);}
-
-/* Boutons actions */
-.btn-cv{background:var(--blue);color:white;border:none;border-radius:var(--rsm);padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:background 0.15s;}
+/* ══ BOUTONS ══ */
+.btn-cv{background:var(--blue);color:white;border:none;border-radius:var(--rsm);padding:6px 11px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.15s;display:inline-flex;align-items:center;gap:4px;}
 .btn-cv:hover{background:#0040CC;}
-.btn-cv-sm{padding:4px 10px;font-size:11px;}
+.btn-cv-sm{padding:3px 8px;font-size:10px;}
 .btn-cv-warn{background:white;color:#D97706;border:1.5px solid #FDE68A;}
 .btn-cv-warn:hover{background:var(--warn-bg);}
 .btn-cv-err{background:white;color:var(--err);border:1.5px solid #FECACA;}
 .btn-cv-err:hover{background:var(--err-bg);}
+.btn-cv-ok{background:white;color:var(--ok);border:1.5px solid #6EE7B7;}
+.btn-cv-ok:hover{background:var(--ok-bg);}
+
+/* ══ BADGES ══ */
+.rf-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;border-radius:20px;padding:2px 8px;}
+.rf-badge.full{background:#E6F9F3;color:#00B37D;}
+.rf-badge.half{background:#FEF9EC;color:#D97706;}
+.rf-badge.none{background:#FEE2E2;color:#DC2626;}
+.rf-badge.cash{background:#EEF3FF;color:#0052FF;}
+.rf-badge.held{background:#F0F4FF;color:#0052FF;}
+
+/* ══ MODAL ══ */
+.cv-modal{display:none;position:fixed;inset:0;background:rgba(10,22,40,0.6);z-index:9000;align-items:center;justify-content:center;backdrop-filter:blur(2px);}
+.cv-modal.open{display:flex;}
+.cv-modal-box{background:white;border-radius:16px;width:500px;max-width:95%;max-height:90vh;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.25);display:flex;flex-direction:column;}
+.cv-modal-head{background:var(--adm-ink);padding:18px 22px;color:white;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+.cv-modal-head h3{font-size:14px;font-weight:700;margin:0;}
+.cv-modal-close{background:rgba(255,255,255,0.1);border:none;color:white;width:28px;height:28px;border-radius:7px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:background 0.15s;}
+.cv-modal-close:hover{background:rgba(255,255,255,0.2);}
+.cv-modal-body{padding:20px;overflow-y:auto;flex:1;}
+.cv-modal-foot{padding:14px 20px;border-top:1px solid var(--border);background:var(--bg);display:flex;gap:10px;flex-shrink:0;}
+.cv-modal-foot .btn-primary{background:var(--blue);color:white;border:none;border-radius:var(--rsm);padding:9px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;flex:1;transition:background 0.15s;}
+.cv-modal-foot .btn-primary:hover{background:#0040CC;}
+.cv-modal-foot .btn-secondary{background:white;color:var(--ink3);border:1px solid var(--border);border-radius:var(--rsm);padding:9px 18px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;}
+.cv-info-box{background:var(--bg);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--ink3);margin-bottom:14px;line-height:1.7;border-left:3px solid var(--blue);}
+.cv-info-box strong{color:var(--ink);}
+.cv-modal-field{margin-bottom:14px;}
+.cv-modal-field label{display:block;font-size:11px;font-weight:600;color:var(--ink3);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px;}
+.cv-modal-field select,.cv-modal-field input{width:100%;padding:8px 11px;border:1.5px solid var(--border);border-radius:var(--rsm);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color 0.15s;}
+.cv-modal-field select:focus,.cv-modal-field input:focus{border-color:var(--blue);}
+
+/* ══ TOAST NOTIFICATIONS (professionnel) ══ */
+#cv-toast-stack{
+  position:fixed;
+  top:70px;
+  right:20px;
+  z-index:99999;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  pointer-events:none;
+}
+.cv-toast{
+  background:white;
+  border-radius:10px;
+  padding:0;
+  box-shadow:0 8px 28px rgba(0,30,100,0.15);
+  min-width:300px;
+  max-width:380px;
+  pointer-events:all;
+  animation:toastIn 0.25s cubic-bezier(.34,1.56,.64,1);
+  overflow:hidden;
+  display:flex;
+  align-items:stretch;
+}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
+.cv-toast-bar{width:4px;flex-shrink:0;}
+.cv-toast-bar.success{background:var(--ok);}
+.cv-toast-bar.error{background:var(--err);}
+.cv-toast-bar.warning{background:var(--warn);}
+.cv-toast-bar.info{background:var(--blue);}
+.cv-toast-inner{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;flex:1;}
+.cv-toast-icon{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.cv-toast-icon.success{background:var(--ok-bg);color:var(--ok);}
+.cv-toast-icon.error{background:var(--err-bg);color:var(--err);}
+.cv-toast-icon.warning{background:var(--warn-bg);color:var(--warn);}
+.cv-toast-icon.info{background:var(--blue-lt);color:var(--blue);}
+.cv-toast-icon i{font-size:12px;}
+.cv-toast-content{flex:1;min-width:0;}
+.cv-toast-title{font-size:13px;font-weight:600;color:var(--ink);line-height:1.3;}
+.cv-toast-msg{font-size:12px;color:var(--ink3);margin-top:2px;line-height:1.4;}
+.cv-toast-close{background:none;border:none;cursor:pointer;color:var(--ink4);padding:12px 10px 12px 0;font-size:16px;line-height:1;flex-shrink:0;}
+.cv-toast-close:hover{color:var(--ink);}
+
+/* ══ CONFIRM DIALOG ══ */
+#cv-confirm-overlay{display:none;position:fixed;inset:0;background:rgba(10,22,40,0.55);z-index:99998;align-items:center;justify-content:center;backdrop-filter:blur(2px);}
+#cv-confirm-overlay.open{display:flex;}
+.cv-confirm-box{background:white;border-radius:14px;width:360px;max-width:90%;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,0.2);}
+.cv-confirm-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;}
+.cv-confirm-icon.warn{background:var(--warn-bg);}
+.cv-confirm-icon.danger{background:var(--err-bg);}
+.cv-confirm-icon i{font-size:20px;}
+.cv-confirm-icon.warn i{color:var(--warn);}
+.cv-confirm-icon.danger i{color:var(--err);}
+.cv-confirm-title{font-size:16px;font-weight:700;color:var(--ink);text-align:center;margin-bottom:8px;}
+.cv-confirm-msg{font-size:13px;color:var(--ink3);text-align:center;line-height:1.5;margin-bottom:20px;}
+.cv-confirm-btns{display:flex;gap:10px;}
+.cv-confirm-btns button{flex:1;padding:10px;border-radius:var(--rsm);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all 0.15s;}
+.cv-confirm-cancel{background:var(--bg);color:var(--ink3);}
+.cv-confirm-cancel:hover{background:var(--bg2);}
+.cv-confirm-ok{background:var(--blue);color:white;}
+.cv-confirm-ok:hover{background:#0040CC;}
+.cv-confirm-ok.danger{background:var(--err);}
+.cv-confirm-ok.danger:hover{background:#B91C1C;}
+
+/* ══ PROMPT ══ */
+#cv-prompt-overlay{display:none;position:fixed;inset:0;background:rgba(10,22,40,0.55);z-index:99998;align-items:center;justify-content:center;backdrop-filter:blur(2px);}
+#cv-prompt-overlay.open{display:flex;}
+.cv-prompt-box{background:white;border-radius:14px;width:380px;max-width:90%;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,0.2);}
+.cv-prompt-title{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:6px;}
+.cv-prompt-msg{font-size:12px;color:var(--ink3);margin-bottom:14px;}
+.cv-prompt-input{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--rsm);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:16px;transition:border-color 0.15s;}
+.cv-prompt-input:focus{border-color:var(--blue);}
+.cv-prompt-btns{display:flex;gap:10px;}
+.cv-prompt-btns button{flex:1;padding:9px;border-radius:var(--rsm);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:none;}
+.cv-prompt-cancel{background:var(--bg);color:var(--ink3);}
+.cv-prompt-ok{background:var(--blue);color:white;}
+
+/* ══ SETTINGS ══ */
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.settings-section{background:white;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);}
+.settings-section h3{font-size:12px;font-weight:700;color:var(--ink);padding:14px 18px;border-bottom:1px solid var(--border);background:var(--bg);margin:0;display:flex;align-items:center;gap:8px;}
+.settings-section h3 i{color:var(--blue);}
+.settings-body{padding:16px 18px;}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);}
+.settings-row:last-child{border-bottom:none;}
+.settings-row label{font-size:13px;color:var(--ink3);font-weight:500;}
+.settings-val{font-size:13px;color:var(--ink4);}
+.settings-info{font-size:11px;color:var(--ink4);margin-top:2px;}
+.toggle{position:relative;display:inline-block;width:38px;height:20px;}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#CBD5E1;border-radius:20px;transition:.25s;}
+.toggle-slider:before{position:absolute;content:"";height:14px;width:14px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.25s;}
+.toggle input:checked + .toggle-slider{background:var(--blue);}
+.toggle input:checked + .toggle-slider:before{transform:translateX(18px);}
+
+/* ══ FLOW PAYMENT INFO ══ */
+.flow-box{border-radius:12px;padding:14px 16px;margin-bottom:16px;border:1px solid;}
+.flow-box.info{background:#EEF3FF;border-color:#C7D7FF;}
+.flow-box.success{background:var(--ok-bg);border-color:#A7F3D0;}
+.flow-box.warn{background:var(--warn-bg);border-color:#FDE68A;}
+.flow-box-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.flow-box.info .flow-box-title{color:var(--blue);}
+.flow-box.success .flow-box-title{color:var(--ok);}
+.flow-box.warn .flow-box-title{color:var(--warn);}
+.flow-box-txt{font-size:12px;line-height:1.6;color:var(--ink3);}
 </style>
 
+<!-- ══════════════════════════════════════════
+     SYSTÈME DE NOTIFICATIONS (toasts)
+══════════════════════════════════════════ -->
+<div id="cv-toast-stack"></div>
+
+<!-- ══════════════════════════════════════════
+     CONFIRM DIALOG (remplace window.confirm)
+══════════════════════════════════════════ -->
+<div id="cv-confirm-overlay">
+  <div class="cv-confirm-box">
+    <div class="cv-confirm-icon warn" id="cv-confirm-icon"><i class="fas fa-exclamation-triangle" id="cv-confirm-icon-i"></i></div>
+    <div class="cv-confirm-title" id="cv-confirm-title">Confirmation</div>
+    <div class="cv-confirm-msg" id="cv-confirm-msg"></div>
+    <div class="cv-confirm-btns">
+      <button class="cv-confirm-cancel" onclick="cvConfirmResolve(false)">Annuler</button>
+      <button class="cv-confirm-ok" id="cv-confirm-ok-btn" onclick="cvConfirmResolve(true)">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PROMPT DIALOG (remplace window.prompt)
+══════════════════════════════════════════ -->
+<div id="cv-prompt-overlay">
+  <div class="cv-prompt-box">
+    <div class="cv-prompt-title" id="cv-prompt-title"></div>
+    <div class="cv-prompt-msg" id="cv-prompt-msg"></div>
+    <input type="text" class="cv-prompt-input" id="cv-prompt-input" placeholder="">
+    <div class="cv-prompt-btns">
+      <button class="cv-prompt-cancel" onclick="cvPromptResolve(null)">Annuler</button>
+      <button class="cv-prompt-ok" onclick="cvPromptResolve(document.getElementById('cv-prompt-input').value)">Valider</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MODAL REMBOURSEMENT
+══════════════════════════════════════════ -->
+<div class="cv-modal" id="refundModal">
+  <div class="cv-modal-box">
+    <div class="cv-modal-head">
+      <h3><i class="fas fa-credit-card" style="margin-right:8px;"></i>Gérer le remboursement</h3>
+      <button class="cv-modal-close" onclick="closeRefundModal()">×</button>
+    </div>
+    <div class="cv-modal-body">
+      <div class="cv-info-box" id="refundInfo">Chargement...</div>
+
+      <!-- Flux de paiement -->
+      <div class="flow-box info" id="flowPaymentInfo" style="display:none;">
+        <div class="flow-box-title">💳 Flux de paiement carte</div>
+        <div class="flow-box-txt">Les fonds sont <strong>bloqués</strong> (held) chez la plateforme jusqu'à la fin du trajet. Le conducteur reçoit 90% après confirmation. La plateforme garde 10%.</div>
+      </div>
+      <div class="flow-box warn" id="flowCashInfo" style="display:none;">
+        <div class="flow-box-title">💵 Paiement en espèces</div>
+        <div class="flow-box-txt">Aucun blocage de fonds. Le passager paie le conducteur directement. Remboursement = gestion manuelle hors plateforme.</div>
+      </div>
+
+      <div class="cv-modal-field">
+        <label>Type de remboursement</label>
+        <select id="refundType" onchange="updateRefundAmount()">
+          <option value="admin_full">Intégral — 100%</option>
+          <option value="admin_half">Partiel — 50%</option>
+          <option value="no_refund">Aucun remboursement</option>
+          <option value="auto">Calculer selon délai avant départ</option>
+        </select>
+      </div>
+      <div class="cv-modal-field" id="refundAmountField">
+        <label>Montant à rembourser (DA)</label>
+        <input type="number" id="refundAmount" step="0.01" min="0">
+      </div>
+      <div class="cv-modal-field">
+        <label>Raison</label>
+        <select id="refundReason">
+          <option value="admin_refund">Décision administrative</option>
+          <option value="driver_no_show">Conducteur absent — 100% passager</option>
+          <option value="passenger_no_show">Passager absent — 50% conducteur</option>
+          <option value="passenger_cancelled_early">Annulation passager &gt; 24h — 100%</option>
+          <option value="passenger_cancelled_late">Annulation passager &lt; 24h — 50%</option>
+          <option value="trip_cancelled">Trajet annulé par conducteur — 100%</option>
+          <option value="dispute">Litige</option>
+        </select>
+      </div>
+    </div>
+    <div class="cv-modal-foot">
+      <button class="btn-secondary" onclick="closeRefundModal()">Annuler</button>
+      <button class="btn-primary" onclick="executeRefund()">✅ Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     LAYOUT PRINCIPAL
+══════════════════════════════════════════ -->
 <div class="adm">
-  <!-- SIDEBAR -->
+
   <aside class="sb">
     <div class="sb-logo">
-      <div>
-        <div class="sb-logo-text">Cara<span>van</span></div>
-        <span class="sb-badge">Admin Panel</span>
-      </div>
+      <div class="sb-logo-text">Cara<span>van</span></div>
+      <span class="sb-badge">Admin Panel</span>
     </div>
     <nav class="sb-nav">
       <div class="sb-sec">Principal</div>
@@ -169,9 +395,12 @@ nav.navbar{display:none!important;}
       <div class="sb-item" data-page="trajets"><i class="fas fa-route"></i> Trajets <span class="sb-badge2" id="badgeTrips">0</span></div>
       <div class="sb-item" data-page="utilisateurs"><i class="fas fa-users"></i> Utilisateurs <span class="sb-badge2" id="badgeUsers">0</span></div>
       <div class="sb-item" data-page="reservations"><i class="fas fa-calendar-check"></i> Réservations <span class="sb-badge2 red" id="badgeBookings">0</span></div>
-      <div class="sb-sec" style="margin-top:10px;">Analyse</div>
+      <div class="sb-sec" style="margin-top:8px;">Finances</div>
+      <div class="sb-item" data-page="remboursements"><i class="fas fa-credit-card"></i> Remboursements</div>
+      <div class="sb-item" data-page="penalites"><i class="fas fa-exclamation-triangle"></i> Pénalités</div>
+      <div class="sb-sec" style="margin-top:8px;">Analyse</div>
       <div class="sb-item" data-page="statistiques"><i class="fas fa-chart-bar"></i> Statistiques</div>
-      <div class="sb-sec" style="margin-top:10px;">Système</div>
+      <div class="sb-sec" style="margin-top:8px;">Système</div>
       <div class="sb-item" data-page="parametres"><i class="fas fa-cog"></i> Paramètres</div>
       <div class="sb-item"><a href="{% url 'home' %}" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:10px;width:100%;"><i class="fas fa-external-link-alt"></i> Voir le site</a></div>
     </nav>
@@ -186,14 +415,10 @@ nav.navbar{display:none!important;}
     </div>
   </aside>
 
-  <!-- MAIN -->
   <div class="adm-main">
-    <!-- TOPBAR : plus de search dupliquée ici — chaque page a sa propre barre -->
     <div class="adm-topbar">
       <div class="adm-title" id="page-title">Tableau de bord</div>
-      <div class="adm-topbar-right">
-        <span style="font-size:12px;color:var(--ink4);">Caravane Admin</span>
-      </div>
+      <span style="font-size:12px;color:var(--ink4);">Caravane Admin</span>
     </div>
 
     <div class="adm-content">
@@ -201,83 +426,34 @@ nav.navbar{display:none!important;}
       <!-- ══ DASHBOARD ══ -->
       <div id="dashboard" class="page-view active">
         <div class="st-grid">
-          <div class="st-card blue"><div class="st-icon"><i class="fas fa-route"></i></div><div class="st-lbl">Trajets actifs</div><div class="st-val" id="statTrips">0</div><div class="st-sub">Total trajets</div></div>
-          <div class="st-card green"><div class="st-icon"><i class="fas fa-users"></i></div><div class="st-lbl">Utilisateurs</div><div class="st-val" id="statUsers">0</div><div class="st-sub">Inscrits</div></div>
-          <div class="st-card amber"><div class="st-icon"><i class="fas fa-calendar-check"></i></div><div class="st-lbl">Réservations</div><div class="st-val" id="statBookings">0</div><div class="st-sub">Total</div></div>
-          <div class="st-card red"><div class="st-icon"><i class="fas fa-car"></i></div><div class="st-lbl">Conducteurs</div><div class="st-val" id="statDrivers">0</div><div class="st-sub">Inscrits</div></div>
+          <div class="st-card blue"><div class="st-icon"><i class="fas fa-route"></i></div><div class="st-lbl">Trajets</div><div class="st-val" id="statTrips">0</div></div>
+          <div class="st-card green"><div class="st-icon"><i class="fas fa-users"></i></div><div class="st-lbl">Utilisateurs</div><div class="st-val" id="statUsers">0</div></div>
+          <div class="st-card amber"><div class="st-icon"><i class="fas fa-calendar-check"></i></div><div class="st-lbl">Réservations</div><div class="st-val" id="statBookings">0</div></div>
+          <div class="st-card red"><div class="st-icon"><i class="fas fa-car"></i></div><div class="st-lbl">Conducteurs</div><div class="st-val" id="statDrivers">0</div></div>
         </div>
         <div class="g3">
-          <div class="ac">
-            <div class="ac-h"><div class="ac-lbl"><i class="fas fa-chart-bar"></i> Trajets — 7 derniers jours</div></div>
-            <div class="ac-b"><div class="bar-chart" id="weeklyChart"></div></div>
-          </div>
-          <div class="ac">
-            <div class="ac-h"><div class="ac-lbl"><i class="fas fa-bolt"></i> Activité récente</div></div>
-            <div class="ac-b" style="padding:12px 18px;" id="activityFeed">
-              <div style="text-align:center;padding:20px;color:var(--ink4);font-size:13px;">Chargement...</div>
-            </div>
-          </div>
+          <div class="ac"><div class="ac-h"><div class="ac-lbl"><i class="fas fa-chart-bar"></i> Trajets — 7 derniers jours</div></div><div class="ac-b"><div class="bar-chart" id="weeklyChart"></div></div></div>
+          <div class="ac"><div class="ac-h"><div class="ac-lbl"><i class="fas fa-bolt"></i> Activité récente</div></div><div class="ac-b" style="padding:10px 16px;" id="activityFeed"><div style="text-align:center;padding:16px;color:var(--ink4);font-size:12px;">Chargement...</div></div></div>
         </div>
         <div class="g2">
-          <div class="ac">
-            <div class="ac-h"><div class="ac-lbl"><i class="fas fa-chart-pie"></i> Répartition des trajets</div></div>
-            <div class="ac-b">
-              <div class="donut-wrap">
-                <canvas id="donutChart" width="140" height="140"></canvas>
-                <div class="donut-legend" id="donutLegend"></div>
-              </div>
-            </div>
-          </div>
-          <div class="ac">
-            <div class="ac-h">
-              <div class="ac-lbl"><i class="fas fa-route"></i> Derniers trajets</div>
-              <span class="ac-action" onclick="showPage('trajets')">Voir tout</span>
-            </div>
-            <div class="adm-tbl-wrap">
-              <table class="adm-tbl">
-                <thead><tr><th>Trajet</th><th>Conducteur</th><th>Prix</th><th>Date</th></tr></thead>
-                <tbody id="recentTrips"><tr><td colspan="4" style="text-align:center;padding:20px;color:var(--ink4);">Chargement...</td></tr></tbody>
-              </table>
-            </div>
-          </div>
+          <div class="ac"><div class="ac-h"><div class="ac-lbl"><i class="fas fa-chart-pie"></i> Répartition géographique</div></div><div class="ac-b"><div class="donut-wrap"><canvas id="donutChart" width="130" height="130"></canvas><div class="donut-legend" id="donutLegend"></div></div></div></div>
+          <div class="ac"><div class="ac-h"><div class="ac-lbl"><i class="fas fa-route"></i> Derniers trajets</div><span class="ac-action" onclick="showPage('trajets')">Voir tout</span></div><div class="adm-tbl-wrap"><table class="adm-tbl"><thead><tr><th>Trajet</th><th>Conducteur</th><th>Prix</th><th>Date</th></tr></thead><tbody id="recentTrips"></tbody></table></div></div>
         </div>
       </div>
 
       <!-- ══ TRAJETS ══ -->
       <div id="trajets" class="page-view">
-        <div class="filter-bar">
-          <div class="filter-search">
-            <i class="fas fa-search"></i>
-            <input type="text" id="tripSearch" placeholder="Rechercher un trajet...">
-          </div>
-        </div>
-        <div class="ac">
-          <div class="ac-h"><div class="ac-lbl"><i class="fas fa-route"></i> Liste des trajets</div></div>
-          <div class="adm-tbl-wrap">
-            <table class="adm-tbl">
-              <thead><tr><th>#</th><th>Trajet</th><th>Conducteur</th><th>Prix</th><th>Places</th><th>Date</th><th>Statut</th></tr></thead>
-              <tbody id="tripsTable"><tr><td colspan="7" style="text-align:center;padding:24px;color:var(--ink4);">Chargement...</td></tr></tbody>
-            </table>
-          </div>
+        <div class="filter-bar"><div class="filter-search"><i class="fas fa-search"></i><input type="text" id="tripSearch" placeholder="Rechercher un trajet..."></div></div>
+        <div class="ac"><div class="ac-h"><div class="ac-lbl"><i class="fas fa-route"></i> Liste des trajets</div></div>
+          <div class="adm-tbl-wrap"><table class="adm-tbl"><thead><tr><th>#</th><th>Trajet</th><th>Conducteur</th><th>Prix</th><th>Places</th><th>Date</th><th>Statut</th></tr></thead><tbody id="tripsTable"></tbody></table></div>
         </div>
       </div>
 
       <!-- ══ UTILISATEURS ══ -->
       <div id="utilisateurs" class="page-view">
-        <div class="filter-bar">
-          <div class="filter-search">
-            <i class="fas fa-search"></i>
-            <input type="text" id="userSearch" placeholder="Rechercher un utilisateur...">
-          </div>
-        </div>
-        <div class="ac">
-          <div class="ac-h"><div class="ac-lbl"><i class="fas fa-users"></i> Liste des utilisateurs</div></div>
-          <div class="adm-tbl-wrap">
-            <table class="adm-tbl">
-              <thead><tr><th>#</th><th>Utilisateur</th><th>Email</th><th>Rôle</th><th>Statut</th><th>Actions</th></tr></thead>
-              <tbody id="usersTable"><tr><td colspan="6" style="text-align:center;padding:24px;color:var(--ink4);">Chargement...</td></tr></tbody>
-            </table>
-          </div>
+        <div class="filter-bar"><div class="filter-search"><i class="fas fa-search"></i><input type="text" id="userSearch" placeholder="Rechercher un utilisateur..."></div></div>
+        <div class="ac"><div class="ac-h"><div class="ac-lbl"><i class="fas fa-users"></i> Liste des utilisateurs</div></div>
+          <div class="adm-tbl-wrap"><table class="adm-tbl"><thead><tr><th>#</th><th>Utilisateur</th><th>Email</th><th>Rôle</th><th>Statut</th><th>Actions</th></tr></thead><tbody id="usersTable"></tbody></table></div>
         </div>
       </div>
 
@@ -287,23 +463,65 @@ nav.navbar{display:none!important;}
           <div class="st-card green"><div class="st-icon"><i class="fas fa-check-circle"></i></div><div class="st-lbl">Total</div><div class="st-val" id="resTotal">0</div></div>
           <div class="st-card blue"><div class="st-icon"><i class="fas fa-check"></i></div><div class="st-lbl">Confirmées</div><div class="st-val" id="resConfirmed">0</div></div>
           <div class="st-card amber"><div class="st-icon"><i class="fas fa-clock"></i></div><div class="st-lbl">En attente</div><div class="st-val" id="resPending">0</div></div>
-          <div class="st-card red"><div class="st-icon"><i class="fas fa-times-circle"></i></div><div class="st-lbl">Annulées</div><div class="st-val" id="resCancelled">0</div></div>
+          <div class="st-card red"><div class="st-icon"><i class="fas fa-times-circle"></i></div><div class="st-lbl">Annulées/Remb.</div><div class="st-val" id="resCancelled">0</div></div>
         </div>
-        <div class="filter-bar">
-          <div class="filter-search">
-            <i class="fas fa-search"></i>
-            <input type="text" id="bookingSearch" placeholder="Rechercher une réservation...">
+        <div class="filter-bar"><div class="filter-search"><i class="fas fa-search"></i><input type="text" id="bookingSearch" placeholder="Rechercher..."></div></div>
+        <div class="ac"><div class="ac-h"><div class="ac-lbl"><i class="fas fa-calendar-check"></i> Toutes les réservations</div></div>
+          <div class="adm-tbl-wrap"><table class="adm-tbl"><thead><tr><th>#</th><th>Passager</th><th>Conducteur</th><th>Montant</th><th>Mode</th><th>Fonds</th><th>Statut</th><th>Actions</th></tr></thead><tbody id="bookingsTable"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ══ REMBOURSEMENTS ══ -->
+      <div id="remboursements" class="page-view">
+        <div class="st-grid">
+          <div class="st-card blue"><div class="st-icon"><i class="fas fa-credit-card"></i></div><div class="st-lbl">Total remboursé</div><div class="st-val" id="totalRefunded">0 DA</div></div>
+          <div class="st-card amber"><div class="st-icon"><i class="fas fa-user-slash"></i></div><div class="st-lbl">No-show passagers</div><div class="st-val" id="noShowPass">0</div><div class="st-sub">50% → conducteur</div></div>
+          <div class="st-card red"><div class="st-icon"><i class="fas fa-car-side"></i></div><div class="st-lbl">No-show conducteurs</div><div class="st-val" id="noShowDrv">0</div><div class="st-sub">100% → passager</div></div>
+          <div class="st-card green"><div class="st-icon"><i class="fas fa-ban"></i></div><div class="st-lbl">Annulations</div><div class="st-val" id="totalCancelled">0</div></div>
+        </div>
+
+        <div class="ac" style="margin-bottom:16px;">
+          <div class="ac-h"><div class="ac-lbl"><i class="fas fa-info-circle"></i> Règles de remboursement</div></div>
+          <div class="ac-b">
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+              <div style="background:#E6F9F3;border-radius:10px;padding:12px;"><div style="font-size:10px;font-weight:700;color:#00B37D;margin-bottom:5px;">100% PASSAGER</div><div style="font-size:11px;color:#2D3F55;">Annulation &gt; 24h<br>Conducteur absent<br>Conducteur annule<br>Décision admin</div></div>
+              <div style="background:#FEF9EC;border-radius:10px;padding:12px;"><div style="font-size:10px;font-weight:700;color:#D97706;margin-bottom:5px;">50% PASSAGER</div><div style="font-size:11px;color:#2D3F55;">Annulation &lt; 24h avant départ</div></div>
+              <div style="background:#FEF9EC;border-radius:10px;padding:12px;"><div style="font-size:10px;font-weight:700;color:#D97706;margin-bottom:5px;">50% → CONDUCTEUR</div><div style="font-size:11px;color:#2D3F55;">Passager absent (pénalité + compensation conducteur)</div></div>
+              <div style="background:#FEE2E2;border-radius:10px;padding:12px;"><div style="font-size:10px;font-weight:700;color:#DC2626;margin-bottom:5px;">0% REMBOURSÉ</div><div style="font-size:11px;color:#2D3F55;">Après l'heure de départ<br>Espèces (manuel)</div></div>
+            </div>
+            <div style="margin-top:12px;padding:10px 12px;background:var(--blue-lt);border-radius:8px;font-size:11px;color:var(--blue);">
+              <strong>Flux carte :</strong> Passager paie → fonds bloqués (held) → trajet terminé → 90% conducteur + 10% plateforme. <strong>Espèces :</strong> paiement direct conducteur-passager, aucun blocage.
+            </div>
           </div>
         </div>
-        <div class="ac">
-          <div class="ac-h"><div class="ac-lbl"><i class="fas fa-calendar-check"></i> Toutes les réservations</div></div>
-          <div class="adm-tbl-wrap">
-            <table class="adm-tbl">
-              <!-- FIX: 6 colonnes cohérentes avec le tbody -->
-              <thead><tr><th>#</th><th>Passager</th><th>Conducteur</th><th>Montant</th><th>Statut</th><th>Actions</th></tr></thead>
-              <tbody id="bookingsTable"><tr><td colspan="6" style="text-align:center;padding:24px;color:var(--ink4);">Chargement...</td></tr></tbody>
-            </table>
+
+        <div class="ac"><div class="ac-h"><div class="ac-lbl"><i class="fas fa-history"></i> Historique des remboursements</div></div>
+          <div class="adm-tbl-wrap"><table class="adm-tbl"><thead><tr><th>#</th><th>Passager</th><th>Conducteur</th><th>Montant orig.</th><th>Remboursé</th><th>Raison</th><th>Statut</th><th>Action</th></tr></thead><tbody id="refundsTable"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ══ PÉNALITÉS ══ -->
+      <div id="penalites" class="page-view">
+        <div class="ac" style="margin-bottom:16px;">
+          <div class="ac-h"><div class="ac-lbl"><i class="fas fa-exclamation-triangle"></i> Appliquer une pénalité</div></div>
+          <div class="ac-b">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:end;">
+              <div><label style="font-size:11px;font-weight:600;color:var(--ink3);display:block;margin-bottom:5px;">Utilisateur (ID)</label><input type="number" id="penaltyUserId" class="fld" placeholder="ID utilisateur"></div>
+              <div><label style="font-size:11px;font-weight:600;color:var(--ink3);display:block;margin-bottom:5px;">Montant (DA)</label><input type="number" id="penaltyAmount" class="fld" placeholder="Ex: 1000" min="1"></div>
+              <div><label style="font-size:11px;font-weight:600;color:var(--ink3);display:block;margin-bottom:5px;">Raison</label>
+                <select id="penaltyReason" class="fld">
+                  <option value="no_show">Non-présentation</option>
+                  <option value="bad_behavior">Comportement inapproprié</option>
+                  <option value="late_cancellation">Annulations tardives répétées</option>
+                  <option value="other">Autre</option>
+                </select>
+              </div>
+              <button onclick="applyPenaltyFromForm()" class="btn-cv" style="padding:9px 16px;"><i class="fas fa-exclamation-triangle"></i> Appliquer</button>
+            </div>
           </div>
+        </div>
+        <div class="ac"><div class="ac-h"><div class="ac-lbl"><i class="fas fa-list"></i> Utilisateurs</div></div>
+          <div class="adm-tbl-wrap"><table class="adm-tbl"><thead><tr><th>#</th><th>Utilisateur</th><th>Rôle</th><th>Email</th><th>Action</th></tr></thead><tbody id="penaltiesUserTable"></tbody></table></div>
         </div>
       </div>
 
@@ -316,18 +534,12 @@ nav.navbar{display:none!important;}
           <div class="st-card red"><div class="st-icon"><i class="fas fa-user-plus"></i></div><div class="st-lbl">Total utilisateurs</div><div class="st-val" id="statNew">0</div></div>
         </div>
         <div class="g2">
-          <div class="ac">
-            <div class="ac-h"><div class="ac-lbl"><i class="fas fa-map-marker-alt"></i> Trajets par wilaya</div></div>
-            <div class="ac-b"><canvas id="citiesChart" height="200"></canvas></div>
-          </div>
-          <div class="ac">
-            <div class="ac-h"><div class="ac-lbl"><i class="fas fa-user-plus"></i> Utilisateurs inscrits</div></div>
-            <div class="ac-b">
-              <div style="font-family:'Syne',sans-serif;font-size:36px;font-weight:800;color:var(--blue);letter-spacing:-1px;" id="newUsersCount">0</div>
-              <div style="font-size:12px;color:var(--ink4);margin-top:4px;margin-bottom:18px;">utilisateurs au total</div>
-              <div style="display:flex;align-items:flex-end;gap:4px;height:50px;" id="sparkline"></div>
-            </div>
-          </div>
+          <div class="ac"><div class="ac-h"><div class="ac-lbl"><i class="fas fa-map-marker-alt"></i> Trajets par wilaya</div></div><div class="ac-b"><canvas id="citiesChart" height="200"></canvas></div></div>
+          <div class="ac"><div class="ac-h"><div class="ac-lbl"><i class="fas fa-chart-line"></i> Activité</div></div><div class="ac-b">
+            <div style="font-family:'Syne',sans-serif;font-size:34px;font-weight:800;color:var(--blue);letter-spacing:-1px;" id="newUsersCount">0</div>
+            <div style="font-size:11px;color:var(--ink4);margin-top:3px;margin-bottom:14px;">utilisateurs au total</div>
+            <div style="display:flex;align-items:flex-end;gap:4px;height:48px;" id="sparkline"></div>
+          </div></div>
         </div>
       </div>
 
@@ -337,122 +549,176 @@ nav.navbar{display:none!important;}
           <div class="settings-section">
             <h3><i class="fas fa-globe"></i> Configuration générale</h3>
             <div class="settings-body">
-              <div class="settings-row">
-                <div><label>Nom de la plateforme</label><div class="settings-info">Affiché dans l'interface</div></div>
-                <span class="settings-val">Caravane</span>
-              </div>
-              <div class="settings-row">
-                <div><label>Environnement</label></div>
-                <span class="settings-val" style="color:var(--ok);font-weight:600;">Production</span>
-              </div>
-              <div class="settings-row">
-                <div><label>Commission par défaut</label><div class="settings-info">% prélevé sur chaque trajet</div></div>
-                <span class="settings-val">0 %</span>
-              </div>
+              <div class="settings-row"><label>Nom de la plateforme</label><span class="settings-val">Caravane</span></div>
+              <div class="settings-row"><div><label>Commission plateforme</label><div class="settings-info">Prélevée sur paiements carte</div></div><span class="settings-val" style="font-weight:700;color:var(--blue);">10 %</span></div>
             </div>
           </div>
-
+          <div class="settings-section">
+            <h3><i class="fas fa-credit-card"></i> Politique de remboursement</h3>
+            <div class="settings-body">
+              <div class="settings-row"><label>Annulation &gt; 24h</label><span class="settings-val" style="color:var(--ok);font-weight:700;">100 % passager</span></div>
+              <div class="settings-row"><label>Annulation &lt; 24h</label><span class="settings-val" style="color:var(--warn);font-weight:700;">50 % passager</span></div>
+              <div class="settings-row"><label>Après le départ</label><span class="settings-val" style="color:var(--err);font-weight:700;">0 %</span></div>
+              <div class="settings-row"><label>Conducteur absent</label><span class="settings-val" style="color:var(--ok);font-weight:700;">100 % passager</span></div>
+              <div class="settings-row"><label>Passager absent</label><span class="settings-val" style="color:var(--warn);font-weight:700;">50 % → conducteur</span></div>
+              <div class="settings-row"><label>Fin de trajet (carte)</label><span class="settings-val" style="color:var(--blue);font-weight:700;">90% conducteur + 10% plateforme</span></div>
+            </div>
+          </div>
           <div class="settings-section">
             <h3><i class="fas fa-shield-alt"></i> Sécurité</h3>
             <div class="settings-body">
-              <div class="settings-row">
-                <div><label>Vérification des conducteurs</label><div class="settings-info">Activation manuelle des comptes</div></div>
-                <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-              </div>
-              <div class="settings-row">
-                <div><label>2FA obligatoire (admins)</label></div>
-                <label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label>
-              </div>
-              <div class="settings-row">
-                <div><label>Blocage auto après signalements</label><div class="settings-info">Seuil : 3 signalements</div></div>
-                <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-              </div>
+              <div class="settings-row"><div><label>Vérification conducteurs</label></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+              <div class="settings-row"><div><label>Blocage auto (3 signalements)</label></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
             </div>
           </div>
-
-          <div class="settings-section">
-            <h3><i class="fas fa-credit-card"></i> Paiements</h3>
-            <div class="settings-body">
-              <div class="settings-row">
-                <div><label>Paiement en espèces</label></div>
-                <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-              </div>
-              <div class="settings-row">
-                <div><label>Paiement en ligne (CB/CIB)</label></div>
-                <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-              </div>
-              <div class="settings-row">
-                <div><label>Délai de remboursement</label><div class="settings-info">Jours ouvrables</div></div>
-                <span class="settings-val">3 jours</span>
-              </div>
-              <div class="settings-row">
-                <div><label>Remboursement annulation tardive</label><div class="settings-info">Passager annule &lt; 2h avant</div></div>
-                <span class="settings-val">50 %</span>
-              </div>
-            </div>
-          </div>
-
           <div class="settings-section">
             <h3><i class="fas fa-bell"></i> Notifications</h3>
             <div class="settings-body">
-              <div class="settings-row">
-                <div><label>Notifications RabbitMQ</label></div>
-                <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-              </div>
-              <div class="settings-row">
-                <div><label>Email de confirmation</label></div>
-                <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-              </div>
-              <div class="settings-row">
-                <div><label>Alertes en temps réel</label></div>
-                <label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label>
-              </div>
+              <div class="settings-row"><label>RabbitMQ</label><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+              <div class="settings-row"><label>Email confirmation</label><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
             </div>
           </div>
         </div>
-
-        <div style="margin-top:18px;display:flex;gap:10px;">
-          <button class="btn-settings" onclick="alert('Paramètres sauvegardés (interface de démonstration)')">
-            <i class="fas fa-save"></i> Sauvegarder
-          </button>
-          <button class="btn-settings danger" onclick="if(confirm('Réinitialiser tous les paramètres ?'))alert('Réinitialisé.')">
-            <i class="fas fa-undo"></i> Réinitialiser
-          </button>
-        </div>
       </div>
 
-    </div><!-- /adm-content -->
-  </div><!-- /adm-main -->
-</div><!-- /adm -->
+    </div>
+  </div>
+</div>
 
 <script>
-var raw = document.getElementById('chart-data');
+// ════════════════════════════════════════════════════════════
+// SYSTÈME DE TOAST NOTIFICATIONS (100% professionnel)
+// ════════════════════════════════════════════════════════════
+var _toastIcons = {success:'fa-check-circle', error:'fa-times-circle', warning:'fa-exclamation-triangle', info:'fa-info-circle'};
+
+function cvToast(msg, type, title){
+  type = type || 'info';
+  title = title || {success:'Succès', error:'Erreur', warning:'Attention', info:'Information'}[type];
+  var stack = document.getElementById('cv-toast-stack');
+  var t = document.createElement('div');
+  t.className = 'cv-toast';
+  t.innerHTML =
+    '<div class="cv-toast-bar '+type+'"></div>'
+    +'<div class="cv-toast-inner">'
+      +'<div class="cv-toast-icon '+type+'"><i class="fas '+_toastIcons[type]+'"></i></div>'
+      +'<div class="cv-toast-content">'
+        +'<div class="cv-toast-title">'+title+'</div>'
+        +'<div class="cv-toast-msg">'+msg+'</div>'
+      +'</div>'
+    +'</div>'
+    +'<button class="cv-toast-close" onclick="this.closest(\'.cv-toast\').remove()">×</button>';
+  stack.appendChild(t);
+  setTimeout(function(){ if(t.parentNode) t.style.opacity='0'; t.style.transform='translateX(20px)'; t.style.transition='all 0.3s'; setTimeout(function(){if(t.parentNode)t.remove();},300); }, 4500);
+}
+
+// ════════════════════════════════════════════════════════════
+// CONFIRM DIALOG (remplace window.confirm)
+// ════════════════════════════════════════════════════════════
+var _cvConfirmResolve = null;
+
+function cvConfirm(msg, title, type){
+  return new Promise(function(resolve){
+    _cvConfirmResolve = resolve;
+    var overlay = document.getElementById('cv-confirm-overlay');
+    var icon    = document.getElementById('cv-confirm-icon');
+    var iconI   = document.getElementById('cv-confirm-icon-i');
+    var okBtn   = document.getElementById('cv-confirm-ok-btn');
+    document.getElementById('cv-confirm-title').textContent = title || 'Confirmation';
+    document.getElementById('cv-confirm-msg').textContent   = msg || '';
+    type = type || 'warn';
+    icon.className  = 'cv-confirm-icon ' + type;
+    iconI.className = 'fas ' + (type==='danger' ? 'fa-trash' : 'fa-exclamation-triangle');
+    okBtn.className = 'cv-confirm-ok' + (type==='danger' ? ' danger' : '');
+    overlay.classList.add('open');
+  });
+}
+
+function cvConfirmResolve(val){
+  document.getElementById('cv-confirm-overlay').classList.remove('open');
+  if(_cvConfirmResolve){ _cvConfirmResolve(val); _cvConfirmResolve = null; }
+}
+
+// ════════════════════════════════════════════════════════════
+// PROMPT DIALOG (remplace window.prompt)
+// ════════════════════════════════════════════════════════════
+var _cvPromptResolve = null;
+
+function cvPrompt(title, msg, placeholder, defaultVal){
+  return new Promise(function(resolve){
+    _cvPromptResolve = resolve;
+    document.getElementById('cv-prompt-title').textContent = title || '';
+    document.getElementById('cv-prompt-msg').textContent   = msg   || '';
+    var input = document.getElementById('cv-prompt-input');
+    input.placeholder = placeholder || '';
+    input.value = defaultVal || '';
+    input.type  = 'text';
+    document.getElementById('cv-prompt-overlay').classList.add('open');
+    setTimeout(function(){ input.focus(); }, 100);
+    // Enter valide
+    input.onkeydown = function(e){ if(e.key==='Enter') cvPromptResolve(input.value); };
+  });
+}
+
+function cvPromptResolve(val){
+  document.getElementById('cv-prompt-overlay').classList.remove('open');
+  if(_cvPromptResolve){ _cvPromptResolve(val===''?null:val); _cvPromptResolve = null; }
+}
+
+// ════════════════════════════════════════════════════════════
+// DONNÉES
+// ════════════════════════════════════════════════════════════
+var raw  = document.getElementById('chart-data');
 var data = raw ? JSON.parse(raw.textContent) : {};
 var allTrips    = data.allTrips    || [];
 var allUsers    = data.allUsers    || [];
 var allBookings = data.allBookings || [];
 var driversList = data.driversList || [];
 
-function fmt(d){
-  try{ return new Date(d).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'}); }
-  catch(e){ return d||'—'; }
-}
+function fmt(d){ try{ return new Date(d).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'}); }catch(e){ return d||'—'; } }
+
 function badge(s){
-  var map = {
-    confirmed: "<span class='badge-ok'><span class='bdot'></span>Confirmée</span>",
-    pending:   "<span class='badge-warn'><span class='bdot'></span>En attente</span>",
-    cancelled: "<span class='badge-err'><span class='bdot'></span>Annulée</span>",
-    refunded:  "<span class='badge-warn'><span class='bdot'></span>Remboursée</span>"
-  };
-  return map[s] || ("<span class='badge-muted'>" + (s||'—') + "</span>");
-}
-function statusBadge(u){
-  return u.is_active !== false
-    ? "<span class='badge-ok'><span class='bdot'></span>Actif</span>"
-    : "<span class='badge-err'><span class='bdot'></span>Bloqué</span>";
+  var m={confirmed:"<span class='badge-ok'><span class='bdot'></span>Confirmée</span>",pending:"<span class='badge-warn'><span class='bdot'></span>En attente</span>",cancelled:"<span class='badge-err'><span class='bdot'></span>Annulée</span>",refunded:"<span class='badge-ok'><span class='bdot'></span>Remboursée</span>",completed:"<span class='badge-blue'><span class='bdot'></span>Terminée</span>"};
+  return m[s]||("<span class='badge-muted'>"+(s||'—')+"</span>");
 }
 
-/* ── Stats globales ── */
+function fundsBadge(b){
+  /* Affiche l'état des fonds selon le mode de paiement et le statut */
+  if(b.payment_method==='cash')
+    return "<span class='rf-badge cash'>Espèces</span>";
+  var s = b.status;
+  if(s==='pending'||s==='confirmed') return "<span class='rf-badge held'>Bloqués (held)</span>";
+  if(s==='completed') return "<span class='rf-badge full'>Libérés conducteur</span>";
+  if(s==='refunded')  return "<span class='rf-badge full'>Remboursé</span>";
+  if(s==='cancelled') return "<span class='rf-badge half'>Annulé</span>";
+  return "<span class='rf-badge cash'>—</span>";
+}
+
+function payBadge(m){
+  return {cash:'Espèces',cib:'CB/CIB',ccp:'CCP',dahabiya:'Dahabiya'}[m]||m||'—';
+}
+
+function statusBadge(u){
+  return u.is_active!==false ? "<span class='badge-ok'><span class='bdot'></span>Actif</span>" : "<span class='badge-err'><span class='bdot'></span>Bloqué</span>";
+}
+
+/**
+ * Calcul remboursement côté JS (pour affichage uniquement)
+ * Le vrai calcul se fait côté serveur dans compute_refund()
+ */
+function computeRefundPct(b){
+  if(b.payment_method==='cash') return {pct:-1, label:'Espèces — hors plateforme', cls:'cash'};
+  var depStr = b.departure_datetime||'';
+  if(!depStr) return {pct:100, label:'100% (date inconnue)', cls:'full'};
+  var dep = new Date(depStr), now = new Date();
+  var h = (dep-now)/3600000;
+  if(h>24)  return {pct:100, label:'100% (>24h avant départ)', cls:'full'};
+  if(h>0)   return {pct:50,  label:'50% (<24h avant départ)',  cls:'half'};
+  return {pct:0, label:'0% (départ passé)', cls:'none'};
+}
+
+// ════════════════════════════════════════════════════════════
+// STATS GLOBALES
+// ════════════════════════════════════════════════════════════
 document.getElementById('statTrips').textContent    = allTrips.length;
 document.getElementById('statUsers').textContent    = allUsers.length;
 document.getElementById('statBookings').textContent = allBookings.length;
@@ -461,334 +727,344 @@ document.getElementById('badgeTrips').textContent   = allTrips.length;
 document.getElementById('badgeUsers').textContent   = allUsers.length;
 document.getElementById('badgeBookings').textContent= allBookings.length;
 
-/* ── Réservation stats ── */
 var conf=0,pend=0,canc=0;
 allBookings.forEach(function(b){
-  if(b.status==='confirmed') conf++;
-  else if(b.status==='pending') pend++;
-  else if(b.status==='cancelled') canc++;
+  if(b.status==='confirmed')conf++;
+  else if(b.status==='pending')pend++;
+  else if(b.status==='cancelled'||b.status==='refunded')canc++;
 });
-document.getElementById('resTotal').textContent     = allBookings.length;
-document.getElementById('resConfirmed').textContent = conf;
-document.getElementById('resPending').textContent   = pend;
-document.getElementById('resCancelled').textContent = canc;
+document.getElementById('resTotal').textContent=allBookings.length;
+document.getElementById('resConfirmed').textContent=conf;
+document.getElementById('resPending').textContent=pend;
+document.getElementById('resCancelled').textContent=canc;
 
-/* ── Page statistiques ── */
-if(allTrips.length){
-  var ts=0,ta=0,ca=0;
-  allTrips.forEach(function(t){
-    ts+=(t.total_seats||0);
-    ta+=(t.total_seats||0)-(t.available_seats||0);
-    if(t.status==='cancelled') ca++;
-  });
-  document.getElementById('statOccupancy').textContent = ts ? Math.round(ta/ts*100)+'%' : '0%';
-  document.getElementById('statCancel').textContent    = allTrips.length ? (ca/allTrips.length*100).toFixed(1)+'%' : '0%';
-  document.getElementById('statRating').textContent    = '—';
-  document.getElementById('statNew').textContent       = allUsers.length;
-  document.getElementById('newUsersCount').textContent = allUsers.length;
-}
+if(data.occupancy_rate!==undefined) document.getElementById('statOccupancy').textContent=data.occupancy_rate+'%';
+if(data.avg_rating!==undefined)     document.getElementById('statRating').textContent=data.avg_rating>0?data.avg_rating+'/5':'—';
+if(data.cancel_rate!==undefined)    document.getElementById('statCancel').textContent=data.cancel_rate+'%';
+document.getElementById('statNew').textContent=allUsers.length;
+document.getElementById('newUsersCount').textContent=allUsers.length;
 
-/* ── Graphique hebdomadaire ── */
+// Stats remboursements
+var noShowP=data.no_show_passengers||0, noShowD=data.no_show_drivers||0;
+var totalRef=0, totalCanc=0;
+allBookings.forEach(function(b){
+  if(b.status==='refunded'){ totalRef+=parseFloat(b.amount)||0; totalCanc++; }
+  else if(b.status==='cancelled') totalCanc++;
+});
+document.getElementById('totalRefunded').textContent=totalRef.toFixed(0)+' DA';
+document.getElementById('noShowPass').textContent=noShowP;
+document.getElementById('noShowDrv').textContent=noShowD;
+document.getElementById('totalCancelled').textContent=totalCanc;
+
+// ════════════════════════════════════════════════════════════
+// GRAPHIQUES
+// ════════════════════════════════════════════════════════════
 (function(){
-  var labels = data.tripLabels || ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
-  var values = data.tripData   || [0,0,0,0,0,0,0];
-  var mx = Math.max.apply(null,values) || 1;
-  var wrap = document.getElementById('weeklyChart');
-  if(!wrap) return;
+  var labels=data.tripLabels||['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+  var values=data.tripData  ||[0,0,0,0,0,0,0];
+  var mx=Math.max.apply(null,values)||1;
+  var wrap=document.getElementById('weeklyChart'); if(!wrap) return;
   wrap.innerHTML='';
   labels.forEach(function(l,i){
-    var h = Math.round(values[i]/mx*100);
-    var col = document.createElement('div');
-    col.className='bc';
+    var h=Math.round(values[i]/mx*100);
+    var col=document.createElement('div'); col.className='bc';
     col.innerHTML='<div class="bbar"><div class="bfill" style="height:'+h+'%"></div></div><div class="blbl">'+l+'</div>';
     wrap.appendChild(col);
   });
 })();
 
-/* ── Activité récente ── */
 (function(){
-  var feed = document.getElementById('activityFeed');
-  if(!feed) return;
+  var feed=document.getElementById('activityFeed'); if(!feed) return;
   var events=[];
-  allTrips.slice(-3).forEach(function(t){
-    events.push({
-      color:'var(--ok)',
-      text:'<strong>'+(t.driver_name||'Conducteur')+'</strong> a publié '+(t.departure_city_name||'?')+' → '+(t.arrival_city_name||'?'),
-      time:'récemment'
-    });
-  });
-  allBookings.slice(-2).forEach(function(b){
-    events.push({
-      color:'var(--blue)',
-      text:'<strong>'+(b.passenger_name||'Passager')+'</strong> a réservé une place',
-      time:'récemment'
-    });
-  });
-  if(!events.length){
-    feed.innerHTML='<div style="text-align:center;padding:20px;color:var(--ink4);font-size:13px;">Aucune activité</div>';
-    return;
-  }
-  feed.innerHTML=events.map(function(e){
-    return '<div class="feed-item"><div class="feed-dot-wrap"><div class="fdot" style="background:'+e.color+'"></div><div class="fline"></div></div><div><div class="feed-txt">'+e.text+'</div><div class="feed-time">'+e.time+'</div></div></div>';
-  }).join('');
+  allTrips.slice(0,3).forEach(function(t){ events.push({c:'var(--ok)',t:'<strong>'+(t.driver_name||'Conducteur')+'</strong> a publié '+(t.departure_city_name||'?')+' → '+(t.arrival_city_name||'?')}); });
+  allBookings.filter(function(b){return b.status==='refunded';}).slice(0,2).forEach(function(b){ events.push({c:'var(--err)',t:'<strong>Remboursement</strong> #'+b.id+' — '+(b.passenger_name||'Passager')}); });
+  allBookings.filter(function(b){return b.status==='pending';}).slice(0,2).forEach(function(b){ events.push({c:'var(--blue)',t:'<strong>'+(b.passenger_name||'Passager')+'</strong> a réservé une place'}); });
+  if(!events.length){feed.innerHTML='<div style="text-align:center;padding:16px;color:var(--ink4);font-size:12px;">Aucune activité</div>';return;}
+  feed.innerHTML=events.slice(0,5).map(function(e){return '<div class="feed-item"><div class="feed-dot-wrap"><div class="fdot" style="background:'+e.c+'"></div><div class="fline"></div></div><div><div class="feed-txt">'+e.t+'</div><div class="feed-time">récemment</div></div></div>';}).join('');
 })();
 
-/* ── Donut ── */
 (function(){
   var canvas=document.getElementById('donutChart'); if(!canvas) return;
-  var north=['alger','blida','tipaza','tizi ouzou','boumerdes'];
-  var east=['constantine','annaba','setif','bejaia','jijel'];
-  var west=['oran','tlemcen','sidi bel abbes','mostaganem'];
+  var north=['alger','blida','tipaza','tizi ouzou','boumerdes'],east=['constantine','annaba','setif','bejaia','jijel'],west=['oran','tlemcen','sidi bel abbes','mostaganem'];
   var cnt={Nord:0,Est:0,Ouest:0,Sud:0};
-  allTrips.forEach(function(t){
-    var c=(t.departure_city_name||'').toLowerCase();
-    if(north.some(function(x){return c.includes(x);})) cnt['Nord']++;
-    else if(east.some(function(x){return c.includes(x);})) cnt['Est']++;
-    else if(west.some(function(x){return c.includes(x);})) cnt['Ouest']++;
-    else cnt['Sud']++;
-  });
-  var colors=['#0052FF','#00B37D','#D97706','#8FA5BF'];
-  var labels=Object.keys(cnt); var values=Object.values(cnt);
-  var total=values.reduce(function(a,b){return a+b;},0)||1;
+  allTrips.forEach(function(t){var c=(t.departure_city_name||'').toLowerCase();if(north.some(function(x){return c.includes(x);}))cnt['Nord']++;else if(east.some(function(x){return c.includes(x);}))cnt['Est']++;else if(west.some(function(x){return c.includes(x);}))cnt['Ouest']++;else cnt['Sud']++;});
+  var colors=['#0052FF','#00B37D','#D97706','#8FA5BF'],labels=Object.keys(cnt),values=Object.values(cnt),total=values.reduce(function(a,b){return a+b;},0)||1;
   new Chart(canvas,{type:'doughnut',data:{labels:labels,datasets:[{data:values,backgroundColor:colors,borderWidth:0,hoverOffset:4}]},options:{cutout:'68%',plugins:{legend:{display:false}}}});
   var leg=document.getElementById('donutLegend');
-  if(leg) leg.innerHTML=labels.map(function(l,i){return '<div class="dl-item"><div class="dl-dot" style="background:'+colors[i]+'"></div>'+l+' — '+Math.round(values[i]/total*100)+'%</div>';}).join('');
+  if(leg)leg.innerHTML=labels.map(function(l,i){return '<div class="dl-item"><div class="dl-dot" style="background:'+colors[i]+'"></div>'+l+' — '+Math.round(values[i]/total*100)+'%</div>';}).join('');
 })();
 
-/* ── Graphique villes ── */
 (function(){
   var canvas=document.getElementById('citiesChart'); if(!canvas) return;
-  var labels=data.cityLabels||[];
-  var vals  =data.cityData  ||[];
-  if(!labels.length){
-    var cc={};
-    allTrips.forEach(function(t){var c=t.departure_city_name;if(c&&c!=='Inconnue')cc[c]=(cc[c]||0)+1;});
-    var sorted=Object.entries(cc).sort(function(a,b){return b[1]-a[1];}).slice(0,7);
-    labels=sorted.map(function(x){return x[0];});
-    vals  =sorted.map(function(x){return x[1];});
-  }
-  new Chart(canvas,{type:'bar',data:{labels:labels,datasets:[{label:'Trajets',data:vals,backgroundColor:'#0052FF',borderRadius:6,hoverBackgroundColor:'#0040CC'}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{grid:{color:'rgba(0,30,100,0.05)'},ticks:{color:'#8FA5BF',font:{size:11}}},x:{grid:{display:false},ticks:{color:'#8FA5BF',font:{size:11}}}}}});
+  var labels=data.cityLabels||[],vals=data.cityData||[];
+  if(!labels.length){var cc={};allTrips.forEach(function(t){var c=t.departure_city_name;if(c&&c!=='Inconnue')cc[c]=(cc[c]||0)+1;});var sorted=Object.entries(cc).sort(function(a,b){return b[1]-a[1];}).slice(0,7);labels=sorted.map(function(x){return x[0];});vals=sorted.map(function(x){return x[1];});}
+  new Chart(canvas,{type:'bar',data:{labels:labels,datasets:[{label:'Trajets',data:vals,backgroundColor:'#0052FF',borderRadius:5}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{grid:{color:'rgba(0,30,100,0.05)'},ticks:{color:'#8FA5BF',font:{size:10}}},x:{grid:{display:false},ticks:{color:'#8FA5BF',font:{size:10}}}}}});
 })();
 
-/* ── Sparkline ── */
 (function(){
   var sp=document.getElementById('sparkline'); if(!sp) return;
-  var vals=(data.tripData||[8,12,10,16,14,18,15,20,22,25]).slice(0,10);
-  var mx=Math.max.apply(null,vals)||1;
+  var vals=(data.tripData||[8,12,10,16,14,18,15,20,22,25]).slice(0,10),mx=Math.max.apply(null,vals)||1;
   vals.forEach(function(v){var d=document.createElement('div');d.style.cssText='flex:1;background:rgba(0,82,255,0.2);border-radius:3px 3px 0 0;min-height:4px;height:'+Math.round(v/mx*100)+'%';sp.appendChild(d);});
 })();
 
-/* ── Derniers trajets (dashboard) ── */
+// ════════════════════════════════════════════════════════════
+// TABLES
+// ════════════════════════════════════════════════════════════
 (function(){
   var tb=document.getElementById('recentTrips'); if(!tb) return;
-  if(!allTrips.length){tb.innerHTML='<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--ink4);">Aucun trajet</td></tr>';return;}
-  tb.innerHTML=allTrips.slice(-5).reverse().map(function(t){
-    return '<tr><td>'+(t.departure_city_name||'?')+' — '+(t.arrival_city_name||'?')+'</td><td>'+(t.driver_name||'—')+'</td><td style="color:var(--blue);font-weight:700;">'+(t.price_per_seat||0)+' DA</td><td class="mono">'+fmt(t.departure_datetime)+'</td></tr>';
-  }).join('');
+  if(!allTrips.length){tb.innerHTML='<tr><td colspan="4" style="text-align:center;padding:16px;color:var(--ink4);">Aucun trajet</td></tr>';return;}
+  tb.innerHTML=allTrips.slice(0,5).map(function(t){return '<tr><td>'+(t.departure_city_name||'?')+' → '+(t.arrival_city_name||'?')+'</td><td>'+(t.driver_name||'—')+'</td><td style="color:var(--blue);font-weight:700;">'+(t.price_per_seat||0)+' DA</td><td class="mono">'+fmt(t.departure_datetime)+'</td></tr>';}).join('');
 })();
 
-/* ── Table trajets ── */
 (function(){
   var tb=document.getElementById('tripsTable'); if(!tb) return;
-  if(!allTrips.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--ink4);">Aucun trajet</td></tr>';return;}
+  if(!allTrips.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--ink4);">Aucun trajet</td></tr>';return;}
   tb.innerHTML=allTrips.map(function(t){
-    var stBadge=t.status==='cancelled'
-      ? "<span class='badge-err'><span class='bdot'></span>Annulé</span>"
-      : t.available_seats===0
-        ? "<span class='badge-warn'><span class='bdot'></span>Complet</span>"
-        : "<span class='badge-ok'><span class='bdot'></span>Actif</span>";
-    return '<tr>'
-      +'<td class="mono">#'+t.id+'</td>'
-      +'<td>'+(t.departure_city_name||'?')+' → '+(t.arrival_city_name||'?')+'</td>'
-      +'<td>'+(t.driver_name||'—')+'</td>'
-      +'<td style="color:var(--blue);font-weight:700;">'+(t.price_per_seat||0)+' DA</td>'
-      +'<td>'+((t.total_seats||0)-(t.available_seats||0))+'/'+(t.total_seats||0)+'</td>'
-      +'<td class="mono">'+fmt(t.departure_datetime)+'</td>'
-      +'<td>'+stBadge+'</td>'
-      +'</tr>';
+    var st=t.status==='cancelled'?"<span class='badge-err'><span class='bdot'></span>Annulé</span>":t.available_seats===0?"<span class='badge-warn'><span class='bdot'></span>Complet</span>":"<span class='badge-ok'><span class='bdot'></span>Actif</span>";
+    return '<tr><td class="mono">#'+t.id+'</td><td>'+(t.departure_city_name||'?')+' → '+(t.arrival_city_name||'?')+'</td><td>'+(t.driver_name||'—')+'</td><td style="color:var(--blue);font-weight:700;">'+(t.price_per_seat||0)+' DA</td><td>'+((t.total_seats||0)-(t.available_seats||0))+'/'+(t.total_seats||0)+'</td><td class="mono">'+fmt(t.departure_datetime)+'</td><td>'+st+'</td></tr>';
   }).join('');
 })();
 
-/* ── Table utilisateurs ── */
 (function(){
   var tb=document.getElementById('usersTable'); if(!tb) return;
-  if(!allUsers.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--ink4);">Aucun utilisateur</td></tr>';return;}
+  if(!allUsers.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--ink4);">Aucun utilisateur</td></tr>';return;}
   var html='';
   allUsers.forEach(function(u){
     var name=((u.first_name||'')+' '+(u.last_name||'')).trim()||'—';
-    var roleB=u.role==='driver'?"<span class='badge-warn'>Conducteur</span>":u.role==='admin'?"<span class='badge-blue'>Admin</span>":"<span class='badge-ok'>Passager</span>";
-    html+='<tr>'
-      +'<td class="mono">#'+u.id+'</td>'
-      +'<td>'+name+'</td>'
-      +'<td style="color:var(--ink3);">'+(u.email||'—')+'</td>'
-      +'<td>'+roleB+'</td>'
-      +'<td>'+statusBadge(u)+'</td>'
-      +'<td>'
-        +'<button onclick="changeRole('+u.id+',\''+u.role+'\')" class="btn-cv btn-cv-sm" style="margin-right:4px;"><i class="fas fa-exchange-alt"></i> Rôle</button>'
-        +'<button onclick="applyPenalty('+u.id+')" class="btn-cv btn-cv-sm btn-cv-warn" style="margin-right:4px;"><i class="fas fa-exclamation-triangle"></i> Pénalité</button>'
-        +'<button onclick="toggleBlock('+u.id+','+(u.is_active!==false)+')" class="btn-cv btn-cv-sm btn-cv-err"><i class="fas fa-ban"></i> '+(u.is_active!==false?'Bloquer':'Débloquer')+'</button>'
-      +'</td>'
-      +'</tr>';
+    var rb=u.role==='driver'?"<span class='badge-warn'>Conducteur</span>":u.role==='admin'?"<span class='badge-blue'>Admin</span>":"<span class='badge-ok'>Passager</span>";
+    html+='<tr><td class="mono">#'+u.id+'</td><td>'+name+'</td><td style="color:var(--ink3);">'+(u.email||'—')+'</td><td>'+rb+'</td><td>'+statusBadge(u)+'</td>'
+      +'<td><button onclick="doChangeRole('+u.id+',\''+u.role+'\')" class="btn-cv btn-cv-sm" style="margin-right:3px;"><i class="fas fa-exchange-alt"></i> Rôle</button>'
+      +'<button onclick="quickPenalty('+u.id+')" class="btn-cv btn-cv-sm btn-cv-warn" style="margin-right:3px;"><i class="fas fa-exclamation-triangle"></i> Pénalité</button>'
+      +'<button onclick="doToggleBlock('+u.id+','+(u.is_active!==false)+')" class="btn-cv btn-cv-sm btn-cv-err"><i class="fas fa-ban"></i> '+(u.is_active!==false?'Bloquer':'Débloquer')+'</button></td></tr>';
   });
   tb.innerHTML=html;
 })();
 
-/* ── Table réservations — FIX: balise <tr> complète, pas de </td> parasite ── */
+(function(){
+  var tb=document.getElementById('penaltiesUserTable'); if(!tb) return;
+  if(!allUsers.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--ink4);">Aucun utilisateur</td></tr>';return;}
+  var html='';
+  allUsers.forEach(function(u){
+    var name=((u.first_name||'')+' '+(u.last_name||'')).trim()||'—';
+    var rb=u.role==='driver'?"<span class='badge-warn'>Conducteur</span>":"<span class='badge-ok'>Passager</span>";
+    html+='<tr><td class="mono">#'+u.id+'</td><td>'+name+'</td><td>'+rb+'</td><td style="color:var(--ink3);">'+(u.email||'—')+'</td>'
+      +'<td><button onclick="quickPenalty('+u.id+')" class="btn-cv btn-cv-sm btn-cv-warn"><i class="fas fa-exclamation-triangle"></i> Pénalité</button></td></tr>';
+  });
+  tb.innerHTML=html;
+})();
+
 (function(){
   var tb=document.getElementById('bookingsTable'); if(!tb) return;
-  if(!allBookings.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--ink4);">Aucune réservation</td></tr>';return;}
+  if(!allBookings.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--ink4);">Aucune réservation</td></tr>';return;}
   tb.innerHTML=allBookings.map(function(b){
-    return '<tr>'
-      +'<td class="mono">#'+b.id+'</td>'
-      +'<td>'+(b.passenger_name||'—')+'</td>'
-      +'<td>'+(b.driver_name||'—')+'</td>'
+    var ri=computeRefundPct(b);
+    var actions='<span style="color:var(--ink4);font-size:10px;">—</span>';
+    if(b.status!=='refunded'&&b.status!=='completed')
+      actions='<button onclick="openRefundModal('+b.id+')" class="btn-cv btn-cv-sm btn-cv-err"><i class="fas fa-credit-card"></i> Gérer</button>';
+    return '<tr><td class="mono">#'+b.id+'</td><td>'+(b.passenger_name||'—')+'</td><td>'+(b.driver_name||'—')+'</td>'
       +'<td style="color:var(--blue);font-weight:700;">'+(b.amount||0)+' DA</td>'
+      +'<td>'+payBadge(b.payment_method)+'</td>'
+      +'<td>'+fundsBadge(b)+'</td>'
       +'<td>'+badge(b.status)+'</td>'
-      +'<td><button onclick="refundBooking('+b.id+')" class="btn-cv btn-cv-sm btn-cv-err"><i class="fas fa-credit-card"></i> Rembourser</button></td>'
-      +'</tr>';
+      +'<td>'+actions+'</td></tr>';
   }).join('');
 })();
 
-/* ── Filtres de recherche ── */
-document.getElementById('tripSearch')?.addEventListener('keyup',function(){
-  var v=this.value.toLowerCase();
-  document.querySelectorAll('#tripsTable tr').forEach(function(r){r.style.display=r.innerText.toLowerCase().includes(v)?'':'none';});
-});
-document.getElementById('userSearch')?.addEventListener('keyup',function(){
-  var v=this.value.toLowerCase();
-  document.querySelectorAll('#usersTable tr').forEach(function(r){r.style.display=r.innerText.toLowerCase().includes(v)?'':'none';});
-});
-document.getElementById('bookingSearch')?.addEventListener('keyup',function(){
-  var v=this.value.toLowerCase();
-  document.querySelectorAll('#bookingsTable tr').forEach(function(r){r.style.display=r.innerText.toLowerCase().includes(v)?'':'none';});
-});
+(function(){
+  var tb=document.getElementById('refundsTable'); if(!tb) return;
+  var list=allBookings.filter(function(b){return b.status==='refunded'||b.status==='cancelled';});
+  if(!list.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--ink4);">Aucun remboursement</td></tr>';return;}
+  tb.innerHTML=list.map(function(b){
+    var ri=computeRefundPct(b);
+    var amt=parseFloat(b.amount)||0;
+    var refAmt=b.status==='refunded'?(ri.pct>0?(amt*ri.pct/100).toFixed(0)+' DA':'0 DA'):'—';
+    var stB=b.status==='refunded'?"<span class='rf-badge full'>Remboursé</span>":"<span class='rf-badge half'>Annulé</span>";
+    var act=b.status!=='refunded'
+      ?'<button onclick="openRefundModal('+b.id+')" class="btn-cv btn-cv-sm btn-cv-err"><i class="fas fa-credit-card"></i> Gérer</button>'
+      :'<span style="color:var(--ink4);font-size:10px;">Traité</span>';
+    return '<tr><td class="mono">#'+b.id+'</td><td>'+(b.passenger_name||'—')+'</td><td>'+(b.driver_name||'—')+'</td>'
+      +'<td style="font-weight:700;">'+(b.amount||0)+' DA</td>'
+      +'<td style="color:var(--ok);font-weight:700;">'+refAmt+'</td>'
+      +'<td style="font-size:11px;">'+ri.label+'</td>'
+      +'<td>'+stB+'</td>'
+      +'<td>'+act+'</td></tr>';
+  }).join('');
+})();
 
-/* ── Navigation ── */
-var titles={dashboard:'Tableau de bord',trajets:'Gestion des trajets',utilisateurs:'Utilisateurs',reservations:'Réservations',statistiques:'Statistiques',parametres:'Paramètres'};
+// ════════════════════════════════════════════════════════════
+// FILTRES
+// ════════════════════════════════════════════════════════════
+document.getElementById('tripSearch')?.addEventListener('keyup',function(){var v=this.value.toLowerCase();document.querySelectorAll('#tripsTable tr').forEach(function(r){r.style.display=r.innerText.toLowerCase().includes(v)?'':'none';});});
+document.getElementById('userSearch')?.addEventListener('keyup',function(){var v=this.value.toLowerCase();document.querySelectorAll('#usersTable tr').forEach(function(r){r.style.display=r.innerText.toLowerCase().includes(v)?'':'none';});});
+document.getElementById('bookingSearch')?.addEventListener('keyup',function(){var v=this.value.toLowerCase();document.querySelectorAll('#bookingsTable tr').forEach(function(r){r.style.display=r.innerText.toLowerCase().includes(v)?'':'none';});});
+
+// ════════════════════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════════════════════
+var titles={dashboard:'Tableau de bord',trajets:'Gestion des trajets',utilisateurs:'Utilisateurs',reservations:'Réservations',statistiques:'Statistiques',parametres:'Paramètres',remboursements:'Remboursements',penalites:'Pénalités'};
 function showPage(p){
   document.querySelectorAll('.page-view').forEach(function(v){v.classList.remove('active');});
-  var el=document.getElementById(p); if(el) el.classList.add('active');
+  var el=document.getElementById(p);if(el)el.classList.add('active');
   document.querySelectorAll('.sb-item[data-page]').forEach(function(n){n.classList.remove('active');});
-  var nav=document.querySelector('.sb-item[data-page="'+p+'"]'); if(nav) nav.classList.add('active');
+  var nav=document.querySelector('.sb-item[data-page="'+p+'"]');if(nav)nav.classList.add('active');
   document.getElementById('page-title').textContent=titles[p]||p;
 }
-document.querySelectorAll('.sb-item[data-page]').forEach(function(item){
-  item.addEventListener('click',function(){showPage(item.getAttribute('data-page'));});
-});
+document.querySelectorAll('.sb-item[data-page]').forEach(function(item){item.addEventListener('click',function(){showPage(item.getAttribute('data-page'));});});
 
-/* ── CSRF ── */
-function getCookie(name){
-  var v=null;
-  if(document.cookie){
-    document.cookie.split(';').forEach(function(c){
-      c=c.trim();
-      if(c.startsWith(name+'=')) v=decodeURIComponent(c.substring(name.length+1));
-    });
-  }
-  return v;
+// ════════════════════════════════════════════════════════════
+// CSRF
+// ════════════════════════════════════════════════════════════
+function getCookie(name){var v=null;if(document.cookie){document.cookie.split(';').forEach(function(c){c=c.trim();if(c.startsWith(name+'='))v=decodeURIComponent(c.substring(name.length+1));});}return v;}
+
+// ════════════════════════════════════════════════════════════
+// MODAL REMBOURSEMENT
+// ════════════════════════════════════════════════════════════
+var _currentBooking=null;
+
+function openRefundModal(bookingId){
+  _currentBooking=allBookings.find(function(b){return b.id===bookingId;});
+  if(!_currentBooking){cvToast('Réservation introuvable','error');return;}
+  var b=_currentBooking, ri=computeRefundPct(b), amt=parseFloat(b.amount)||0;
+
+  // Info box
+  document.getElementById('refundInfo').innerHTML=
+    '<strong>Réservation #'+b.id+'</strong><br>'
+    +'Passager : '+(b.passenger_name||'—')+'<br>'
+    +'Conducteur : '+(b.driver_name||'—')+'<br>'
+    +'Montant : <strong style="color:var(--blue);">'+amt+' DA</strong><br>'
+    +'Mode : '+payBadge(b.payment_method)+(b.payment_method!=='cash'?' — fonds bloqués (held)':'')+
+    (b.payment_method!=='cash'?'<br>Délai calculé : <strong>'+ri.label+'</strong>':'');
+
+  // Afficher le bon flux
+  document.getElementById('flowPaymentInfo').style.display=b.payment_method!=='cash'?'block':'none';
+  document.getElementById('flowCashInfo').style.display=b.payment_method==='cash'?'block':'none';
+  document.getElementById('refundAmountField').style.display=b.payment_method==='cash'?'none':'block';
+
+  // Pré-remplir montant
+  var pct=ri.pct>=0?ri.pct:100;
+  document.getElementById('refundAmount').value=(amt*pct/100).toFixed(2);
+
+  document.getElementById('refundModal').classList.add('open');
 }
 
-/* ── Actions admin ── */
-function refundBooking(bookingId){
-  if(!confirm('Rembourser intégralement cette réservation ?')) return;
+function closeRefundModal(){
+  document.getElementById('refundModal').classList.remove('open');
+  _currentBooking=null;
+}
+
+function updateRefundAmount(){
+  if(!_currentBooking) return;
+  var amt=parseFloat(_currentBooking.amount)||0;
+  var type=document.getElementById('refundType').value;
+  var pct=type==='admin_full'?100:type==='admin_half'?50:type==='no_refund'?0:null;
+  if(pct!==null){
+    document.getElementById('refundAmount').value=(amt*pct/100).toFixed(2);
+  } else {
+    var ri=computeRefundPct(_currentBooking);
+    document.getElementById('refundAmount').value=ri.pct>=0?(amt*ri.pct/100).toFixed(2):amt.toFixed(2);
+  }
+}
+
+function executeRefund(){
+  if(!_currentBooking){closeRefundModal();return;}
+  var b=_currentBooking;
+
+  if(b.payment_method==='cash'){
+    cvToast('Paiement en espèces — effectuez le remboursement manuellement au passager.','warning','Espèces');
+    closeRefundModal();
+    return;
+  }
+
+  var type=document.getElementById('refundType').value;
+  if(type==='no_refund'){
+    cvToast('Aucun remboursement effectué pour la réservation #'+b.id,'info');
+    closeRefundModal();
+    return;
+  }
+
+  var amount=document.getElementById('refundAmount').value;
+  var reason=document.getElementById('refundReason').value;
+  if(type==='admin_full') reason='admin_refund';
+
   fetch('/refund-booking/',{
     method:'POST',
-    headers:{'X-CSRFToken':getCookie('csrftoken')},
-    body:new URLSearchParams({booking_id:bookingId,reason:'admin_refund'})
-  }).then(function(){location.reload();});
+    headers:{'X-CSRFToken':getCookie('csrftoken'),'Content-Type':'application/x-www-form-urlencoded'},
+    body:'booking_id='+b.id+'&reason='+reason+'&override_amount='+encodeURIComponent(amount)
+  })
+  .then(function(r){
+    closeRefundModal();
+    if(r.ok||r.redirected){
+      cvToast('Remboursement de '+parseFloat(amount).toFixed(0)+' DA effectué pour la réservation #'+b.id,'success','Remboursement');
+      setTimeout(function(){location.reload();},2000);
+    } else {
+      cvToast('Erreur lors du remboursement','error');
+    }
+  })
+  .catch(function(e){cvToast('Erreur réseau : '+e,'error');});
 }
 
-function applyPenalty(userId){
-  var amount=prompt('Montant de la pénalité (DA) :','1000');
-  if(!amount) return;
-  var reason=prompt('Raison :','Comportement inapproprié');
-  if(!reason) return;
-  fetch('/admin/apply-penalty/',{
-    method:'POST',
-    headers:{'X-CSRFToken':getCookie('csrftoken')},
-    body:new URLSearchParams({user_id:userId,amount:amount,reason:reason})
-  })
-  .then(function(r){return r.json();})
-  .then(function(d){
-    if(d.status==='ok') alert('✅ '+d.message);
-    else alert('❌ Erreur: '+(d.message||'Inconnue'));
-    location.reload();
-  })
-  .catch(function(){alert('❌ Erreur réseau');});
-}
-
-function changeRole(userId,currentRole){
+// ════════════════════════════════════════════════════════════
+// ACTIONS ADMIN (avec cvConfirm / cvToast au lieu de alert/confirm)
+// ════════════════════════════════════════════════════════════
+function doChangeRole(userId, currentRole){
   var newRole=currentRole==='driver'?'passager':'conducteur';
-  if(!confirm('Changer le rôle de cet utilisateur en '+newRole+' ?')) return;
-  fetch('/admin/change-role/'+userId+'/',{
-    method:'POST',
-    headers:{'X-CSRFToken':getCookie('csrftoken')}
-  })
-  .then(function(r){return r.json();})
-  .then(function(d){
-    if(d.status==='ok') alert('✅ '+d.message);
-    else alert('❌ Erreur: '+(d.message||'Inconnue'));
-    location.reload();
-  })
-  .catch(function(){alert('❌ Erreur réseau');});
+  cvConfirm('Changer le rôle de cet utilisateur en '+newRole+' ?','Changement de rôle','warn').then(function(ok){
+    if(!ok) return;
+    fetch('/admin/change-role/'+userId+'/',{method:'POST',headers:{'X-CSRFToken':getCookie('csrftoken')}})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.status==='ok'){cvToast(d.message,'success','Rôle modifié');setTimeout(function(){location.reload();},1500);}
+      else cvToast(d.message||'Erreur inconnue','error');
+    })
+    .catch(function(){cvToast('Erreur réseau','error');});
+  });
 }
 
-function toggleBlock(userId,isCurrentlyActive){
-  var action=isCurrentlyActive?'Bloquer':'Débloquer';
-  if(!confirm(action+' cet utilisateur ?')) return;
-  fetch('/admin/toggle-block/'+userId+'/',{
-    method:'POST',
-    headers:{'X-CSRFToken':getCookie('csrftoken')}
-  })
-  .then(function(r){return r.json();})
-  .then(function(d){
-    if(d.status==='ok') alert('✅ '+d.message);
-    else alert('❌ Erreur: '+(d.message||'Inconnue'));
-    location.reload();
-  })
-  .catch(function(){alert('❌ Erreur réseau');});
+function doToggleBlock(userId, isActive){
+  var action=isActive?'Bloquer':'Débloquer';
+  cvConfirm(action+' cet utilisateur ?',action+' utilisateur', isActive?'danger':'warn').then(function(ok){
+    if(!ok) return;
+    fetch('/admin/toggle-block/'+userId+'/',{method:'POST',headers:{'X-CSRFToken':getCookie('csrftoken')}})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.status==='ok'){cvToast(d.message,'success');setTimeout(function(){location.reload();},1500);}
+      else cvToast(d.message||'Erreur','error');
+    })
+    .catch(function(){cvToast('Erreur réseau','error');});
+  });
 }
-// ========== CHARGEMENT DES STATISTIQUES AVANCÉES ==========
-setTimeout(function() {
-    var raw = document.getElementById('chart-data');
-    if (!raw) {
-        console.error('❌ chart-data non trouvé');
-        return;
-    }
-    
-    var data = JSON.parse(raw.textContent);
-    console.log('📊 Données reçues:', data);
-    
-    // Taux d'occupation
-    var occupancyEl = document.getElementById('statOccupancy');
-    if (occupancyEl && data.occupancy_rate !== undefined) {
-        occupancyEl.textContent = data.occupancy_rate + '%';
-    }
-    
-    // Note moyenne
-    var ratingEl = document.getElementById('statRating');
-    if (ratingEl && data.avg_rating !== undefined) {
-        ratingEl.textContent = data.avg_rating > 0 ? data.avg_rating + '/5' : '—';
-    }
-    
-    // Taux d'annulation
-    var cancelEl = document.getElementById('statCancel');
-    if (cancelEl && data.cancel_rate !== undefined) {
-        cancelEl.textContent = data.cancel_rate + '%';
-    }
-    
-    // Total utilisateurs
-    var usersEl = document.getElementById('statNew');
-    if (usersEl && data.total_users !== undefined) {
-        usersEl.textContent = data.total_users;
-    }
-    
-    console.log('✅ Stats mises à jour:', {
-        occupation: data.occupancy_rate + '%',
-        rating: data.avg_rating,
-        cancel: data.cancel_rate + '%',
-        users: data.total_users
-    });
-}, 500);
+
+function quickPenalty(userId){
+  document.getElementById('penaltyUserId').value=userId;
+  showPage('penalites');
+  cvToast('Utilisateur #'+userId+' sélectionné — remplissez le montant et validez','info');
+}
+
+function applyPenaltyFromForm(){
+  var userId=document.getElementById('penaltyUserId').value;
+  var amount=document.getElementById('penaltyAmount').value;
+  var reason=document.getElementById('penaltyReason').value;
+  if(!userId){cvToast('Saisissez un ID utilisateur','warning');return;}
+  if(!amount||parseFloat(amount)<=0){cvToast('Saisissez un montant valide','warning');return;}
+  cvConfirm('Appliquer une pénalité de '+amount+' DA à l\'utilisateur #'+userId+' ?','Confirmation pénalité','danger').then(function(ok){
+    if(!ok) return;
+    fetch('/admin/apply-penalty/',{
+      method:'POST',
+      headers:{'X-CSRFToken':getCookie('csrftoken'),'Content-Type':'application/x-www-form-urlencoded'},
+      body:'user_id='+userId+'&amount='+amount+'&reason='+reason
+    })
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.status==='ok'){
+        cvToast(d.message,'success','Pénalité appliquée');
+        document.getElementById('penaltyAmount').value='';
+        document.getElementById('penaltyUserId').value='';
+      } else {
+        cvToast(d.message||'Erreur','error');
+      }
+    })
+    .catch(function(){cvToast('Erreur réseau','error');});
+  });
+}
 </script>
 {% endblock %}

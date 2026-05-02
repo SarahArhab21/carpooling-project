@@ -1,0 +1,46 @@
+http:
+  routers:
+    auth-api:
+      rule: "PathPrefix(`/api/auth/`)"
+      service: auth-service
+    trips-api:
+      rule: "PathPrefix(`/api/trips/`)"
+      service: trip-service
+    bookings-api:
+      rule: "PathPrefix(`/api/bookings/`)"
+      service: booking-service
+    payments-api:
+      rule: "PathPrefix(`/api/payments/`)"
+      service: payment-service
+    search-api:
+      rule: "PathPrefix(`/api/search/`)"
+      service: search-service
+    frontend:
+      rule: "PathPrefix(`/`)"
+      service: frontend
+
+  services:
+    auth-service:
+      loadBalancer:
+        servers:
+          - url: "http://172.20.0.10:8081"
+    trip-service:
+      loadBalancer:
+        servers:
+          - url: "http://172.20.0.11:8002"
+    booking-service:
+      loadBalancer:
+        servers:
+          - url: "http://172.20.0.12:8011"
+    payment-service:
+      loadBalancer:
+        servers:
+          - url: "http://172.20.0.13:8000"
+    search-service:
+      loadBalancer:
+        servers:
+          - url: "http://172.20.0.14:8003"
+    frontend:
+      loadBalancer:
+        servers:
+          - url: "http://172.20.0.15:8000"

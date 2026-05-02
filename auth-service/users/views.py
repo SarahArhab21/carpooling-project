@@ -26,6 +26,7 @@ def get_client_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
+
 @method_decorator(csrf_exempt, name='dispatch')
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
@@ -46,20 +47,20 @@ class RegisterView(generics.CreateAPIView):
                 profile.bio = bio
             profile.save()
             
-            # Sauvegarde des infos véhicule
-            user.vehicle_brand = request.data.get('vehicle_brand', '')
-            user.vehicle_model = request.data.get('vehicle_model', '')
-            user.vehicle_year = request.data.get('vehicle_year', 0)
-            user.vehicle_color = request.data.get('vehicle_color', '')
-            user.vehicle_license_plate = request.data.get('vehicle_license_plate', '')
-            user.vehicle_seats = request.data.get('vehicle_seats', 0)
-            user.save()
+            # Sauvegarde des infos véhicule (seulement pour les conducteurs)
+            if user.role == 'driver':
+                user.vehicle_brand = request.data.get('vehicle_brand', '')
+                user.vehicle_model = request.data.get('vehicle_model', '')
+                user.vehicle_year = request.data.get('vehicle_year', 0)
+                user.vehicle_color = request.data.get('vehicle_color', '')
+                user.vehicle_license_plate = request.data.get('vehicle_license_plate', '')
+                user.vehicle_seats = request.data.get('vehicle_seats', 4)
+                user.save()
             
-                        # ✅ SAUVEGARDE PHOTO AVEC DJANGO (propre)
+            # Sauvegarde photo
             profile_picture = request.FILES.get('profile_picture')
             if profile_picture:
                 try:
-                    # Django gère le nom, le chemin et la sauvegarde
                     profile.profile_picture = profile_picture
                     profile.save()
                     print(f"✅ Photo sauvegardée: {profile.profile_picture.url}")
@@ -90,7 +91,6 @@ class LoginView(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            # ✅ Utiliser validated_data, PAS save()
             user = serializer.validated_data['user']
             user.last_login = timezone.now()
             user.save()
@@ -225,7 +225,7 @@ class HealthCheckView(APIView):
         })
 
 class UploadView(APIView):
-    permission_classes = [permissions.AllowAny]  # ← CHANGER ICI
+    permission_classes = [permissions.AllowAny]
     
     def post(self, request):
         user_id = request.data.get('user_id') or request.POST.get('user_id')
@@ -241,24 +241,18 @@ class UploadView(APIView):
             user = User.objects.get(id=user_id)
             profile = Profile.objects.get(user=user)
             
-            # Supprimer l'ancienne photo si elle n'est pas par défaut
-            if profile.profile_picture and 'default' not in profile.profile_picture.name:
-                profile.profile_picture.delete(save=False)
-            
-            # Sauvegarder la nouvelle photo
-            ext = profile_picture.name.split('.')[-1].lower()
-            new_name = f"user_{user.id}_profile_{uuid.uuid4().hex[:8]}.{ext}"
-            profile.profile_picture.save(new_name, profile_picture)
+            # Sauvegarder la photo
+            profile.profile_picture = profile_picture
             profile.save()
+            
+            # Construire l'URL absolue
+            photo_url = f"http://auth-service:8081{profile.profile_picture.url}"
             
             return Response({
                 'status': 'success',
-                'profile_picture_url': profile.profile_picture.url
+                'profile_picture_url': photo_url,
+                'message': 'Photo téléchargée avec succès'
             })
-        except User.DoesNotExist:
-            return Response({'error': 'Utilisateur non trouvé'}, status=404)
-        except Profile.DoesNotExist:
-            return Response({'error': 'Profil non trouvé'}, status=404)
         except Exception as e:
             return Response({'error': str(e)}, status=500)
 

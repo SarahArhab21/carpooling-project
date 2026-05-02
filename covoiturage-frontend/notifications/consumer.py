@@ -148,7 +148,43 @@ def callback(ch, method, properties, body):
                 <p>Ta demande pour {seats} place(s) a été envoyée. Tu recevras une réponse bientôt.</p>
                 <p><a href='http://localhost:8000/my-bookings/'>Suivre ma demande</a></p>
                 """)
+                # ---------- 1.5. CREATION DE RESERVATION (booking_created) ----------
+        elif msg_type == 'booking_created':
+            driver_id = data.get('driverId') or data.get('driver_id')
+            passenger_id = data.get('userId')
+            seats = data.get('seats', 1)
+            
+            passenger_name = get_user_name(passenger_id)
+            
+            # Notification pour le conducteur
+            create_notification(driver_id, "🚗 Nouvelle demande", f"{passenger_name} veut {seats} place(s)", 'booking_request', '/my-bookings/#driver-requests')
+            
+            # Email au conducteur
+            driver_email = get_user_email(driver_id)
+            if driver_email:
+                send_real_email(driver_email, "🚗 Nouvelle demande de réservation", f"""
+                <h2>Nouvelle demande</h2>
+                <p>{passenger_name} veut réserver {seats} place(s).</p>
+                <p><a href='http://localhost:8000/my-bookings/'>Cliquez ici</a> pour répondre.</p>
+                """)
+            
+            print(f"✅ booking_created traité - Notification pour conducteur {driver_id}")
 
+        # ---------- 1.6. CREATION DE RESERVATION (booking_created) avec DB ----------
+        elif msg_type == 'booking_created_db':
+            driver_id = data.get('driverId') or data.get('driver_id')
+            passenger_name = get_user_name(data.get('userId'))
+            seats = data.get('seats', 1)
+            
+            # Notification directe DB pour la cloche
+            try:
+                import requests as req
+                req.post('http://frontend:8000/api/notifications/create/', 
+                        json={'user_id': driver_id, 'title': '🚗 Nouvelle demande', 
+                              'message': f'{passenger_name} veut {seats} place(s)', 'type': 'booking'}, timeout=5)
+                print(f"🔔 Notification DB pour conducteur {driver_id}")
+            except Exception as e:
+                print(f"❌ Erreur DB: {e}")
         # ---------- 2. RESERVATION CONFIRMEE ----------
         elif msg_type == 'booking_confirmed':
             booking_id = data.get('booking_id')

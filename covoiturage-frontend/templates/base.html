@@ -147,13 +147,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);padd
         </div>
         <div class="nav-sep"></div>
         <div class="dropdown d-flex align-items-center">
-          <div class="nav-av" data-bs-toggle="dropdown">
-            {% if request.session.user.profile_picture %}
-              <img src="{{ request.session.user.profile_picture }}" alt="">
-            {% else %}
-              {{ request.session.user.first_name|slice:":1" }}{{ request.session.user.last_name|slice:":1" }}
-            {% endif %}
-          </div>
+             <div class="nav-av" data-bs-toggle="dropdown">
+    {% if request.session.user.profile_picture %}
+        <img src="{{ request.session.user.profile_picture }}" alt="Photo" style="width: 100%; height: 100%; object-fit: cover;">
+    {% else %}
+        <span>{{ request.session.user.first_name|slice:":1" }}{{ request.session.user.last_name|slice:":1" }}</span>
+    {% endif %}
+</div>
           <ul class="dropdown-menu dropdown-menu-end">
             <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fas fa-user"></i>Mon profil</a></li>
             {% if request.session.user.role == 'admin' %}

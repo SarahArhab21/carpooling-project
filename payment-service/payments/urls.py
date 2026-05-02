@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import refund_by_body, apply_penalty
 
 urlpatterns = [
     path('health/', views.health_check, name='health_check'),
@@ -11,4 +12,6 @@ urlpatterns = [
     path('admin-block/', views.admin_block_payment, name='admin_block_payment'),
     path('transaction/<str:transaction_id>/', views.get_transaction, name='get_transaction'),
     path('wallet/', views.get_wallet, name='get_wallet'),
+    path('refund/', refund_by_body, name='refund-by-body'),
+    path('penalty/', apply_penalty, name='apply-penalty'),
 ]

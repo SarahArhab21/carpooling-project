@@ -8,6 +8,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.contrib.auth import get_user_model
 from .models import Notification
+from django.http import HttpResponse, Http404
+
 
 print("✅ views.py chargé correctement")
 User = get_user_model()
@@ -43,7 +45,143 @@ def _fetch_user_names(user_ids):
         print(f"Erreur auth_db _fetch_user_names: {e}")
         return {}
 
-
+def cancel_trip(request, trip_id):
+    """
+    Suppression d'un trajet — réservé au conducteur propriétaire.
+    Vérifie qu'il n'y a pas de réservations actives avant de supprimer.
+    """
+    if not request.session.get('access_token'):
+        return redirect('login')
+ 
+    user_id = request.session.get('user', {}).get('id')
+ 
+    # Vérifier que l'utilisateur est le conducteur
+    try:
+        conn = _get_db_conn('trip_db')
+        cur  = conn.cursor()
+        cur.execute("SELECT driver_id FROM trajet_app_ride WHERE id = %s", (trip_id,))
+        row = cur.fetchone()
+        cur.close(); conn.close()
+        if not row:
+            messages.error(request, 'Trajet non trouvé')
+            return redirect('my_bookings')
+        if int(row[0]) != int(user_id):
+            messages.error(request, 'Non autorisé')
+            return redirect('my_bookings')
+    except Exception as e:
+        messages.error(request, f'Erreur: {e}')
+        return redirect('my_bookings')
+ 
+    # Vérifier réservations actives dans booking_db
+    try:
+        conn = _get_db_conn('booking_db')
+        cur  = conn.cursor()
+        cur.execute("""
+            SELECT COUNT(*) FROM booking_booking
+            WHERE  trip_id = %s AND status IN ('confirmed', 'pending')
+        """, (trip_id,))
+        count = cur.fetchone()[0]
+        cur.close(); conn.close()
+        if count > 0:
+            messages.error(request, f'Impossible d\'annuler : {count} réservation(s) en cours')
+            return redirect('trip_detail', trip_id=trip_id)
+    except Exception as e:
+        print(f"Erreur vérif réservations: {e}")
+ 
+    # Supprimer dans trip_db
+    try:
+        conn = _get_db_conn('trip_db')
+        cur  = conn.cursor()
+        cur.execute(
+            "DELETE FROM trajet_app_ride WHERE id = %s AND driver_id = %s",
+            (trip_id, user_id)
+        )
+        conn.commit()
+        affected = cur.rowcount
+        cur.close(); conn.close()
+ 
+        if affected > 0:
+            messages.success(request, '✅ Trajet supprimé avec succès')
+            return redirect('search_trips')
+        else:
+            messages.error(request, 'Erreur lors de la suppression')
+            return redirect('trip_detail', trip_id=trip_id)
+    except Exception as e:
+        messages.error(request, f'Erreur: {e}')
+        return redirect('trip_detail', trip_id=trip_id)
+ 
+def edit_trip(request, trip_id):
+    """
+    Modification d'un trajet — réservé au conducteur propriétaire.
+    Écrit directement dans trip_db pour éviter les problèmes HTTP.
+    """
+    if not request.session.get('access_token'):
+        return redirect('login')
+ 
+    user_id = request.session.get('user', {}).get('id')
+ 
+    # Vérifier que l'utilisateur est le conducteur
+    try:
+        conn = _get_db_conn('trip_db')
+        cur  = conn.cursor()
+        cur.execute("SELECT driver_id FROM trajet_app_ride WHERE id = %s", (trip_id,))
+        row = cur.fetchone()
+        cur.close(); conn.close()
+        if not row:
+            messages.error(request, 'Trajet non trouvé')
+            return redirect('search_trips')
+        if int(row[0]) != int(user_id):
+            messages.error(request, 'Non autorisé — vous n\'êtes pas le conducteur de ce trajet')
+            return redirect('search_trips')
+    except Exception as e:
+        messages.error(request, f'Erreur: {e}')
+        return redirect('search_trips')
+ 
+    if request.method == 'POST':
+        try:
+            departure_date = request.POST.get('departure_date', '')
+            departure_time = request.POST.get('departure_time', '')
+            departure_datetime = f"{departure_date} {departure_time}:00"
+ 
+            dep_city    = int(request.POST.get('departure_city'))
+            arr_city    = int(request.POST.get('arrival_city'))
+            price       = float(request.POST.get('price_per_seat'))
+            total       = int(request.POST.get('total_seats'))
+            available   = int(request.POST.get('available_seats'))
+            description = request.POST.get('description', '')
+ 
+            # Écriture directe dans trip_db
+            conn = _get_db_conn('trip_db')
+            cur  = conn.cursor()
+            cur.execute("""
+                UPDATE trajet_app_ride
+                SET    departure_city_id  = %s,
+                       arrival_city_id    = %s,
+                       departure_datetime = %s,
+                       price_per_seat     = %s,
+                       total_seats        = %s,
+                       available_seats    = %s,
+                       description        = %s
+                WHERE  id = %s AND driver_id = %s
+            """, (
+                dep_city, arr_city, departure_datetime,
+                price, total, available, description,
+                trip_id, user_id
+            ))
+            conn.commit()
+            affected = cur.rowcount
+            cur.close(); conn.close()
+ 
+            if affected > 0:
+                messages.success(request, '✅ Trajet modifié avec succès')
+            else:
+                messages.error(request, '❌ Aucune modification effectuée')
+ 
+        except Exception as e:
+            messages.error(request, f'❌ Erreur: {e}')
+ 
+    return redirect('trip_detail', trip_id=trip_id)
+ 
 # ──────────────────────────────────────────────────────────────────────────────
 # LOGIQUE DE REMBOURSEMENT
 # ──────────────────────────────────────────────────────────────────────────────
@@ -242,28 +380,68 @@ def register(request):
             messages.error(request, f'Service indisponible: {e}')
     return render(request, 'register.html')
 
-
+ 
+def media_proxy(request, path):
+    """
+    Proxy transparent pour les fichiers media d'auth-service.
+    Le navigateur ne peut pas résoudre auth-service:8081 (réseau Docker interne).
+    Cette vue intercepte /media/xxx et va chercher le fichier côté serveur.
+    """
+    try:
+        upstream = requests.get(
+            f"http://auth-service:8081/media/{path}",
+            timeout=10
+        )
+        if upstream.status_code == 200:
+            content_type = upstream.headers.get('Content-Type', 'image/jpeg')
+            return HttpResponse(upstream.content, content_type=content_type)
+    except Exception as e:
+        print(f"Erreur media_proxy: {e}")
+    raise Http404
 @csrf_exempt
 def login_view(request):
     if request.method == 'POST':
         try:
-            resp = requests.post("http://auth-service:8081/api/auth/login/",
-                                 json={'email': request.POST.get('email'),
-                                       'password': request.POST.get('password')}, timeout=10)
+            resp = requests.post(
+                "http://auth-service:8081/api/auth/login/",
+                json={
+                    'email':    request.POST.get('email'),
+                    'password': request.POST.get('password'),
+                },
+                timeout=10
+            )
             if resp.status_code == 200:
                 data    = resp.json()
                 request.session['access_token'] = data.get('access')
                 user_data = data.get('user', {})
                 user_id   = user_data.get('id')
+ 
                 if user_id:
-                    br = requests.get(f"http://auth-service:8081/api/auth/users/{user_id}/basic/", timeout=5)
+                    # Re-fetch pour avoir toutes les infos (photo, city, bio…)
+                    br = requests.get(
+                        f"http://auth-service:8081/api/auth/users/{user_id}/basic/",
+                        timeout=5
+                    )
                     if br.status_code == 200:
-                        user_data = br.json()
-                    vr = requests.get(f"http://trip-service:8002/api/vehicles/?owner_id={user_id}", timeout=5)
+                        full = br.json()
+ 
+                        # La photo est déjà /media/profiles/xxx.jpg (chemin relatif)
+                        # On met None si c'est la photo par défaut → affiche les initiales
+                        pic = full.get('profile_picture', '')
+                        full['profile_picture'] = pic if (pic and 'default' not in pic) else None
+ 
+                        user_data = full
+ 
+                    # Véhicule
+                    vr = requests.get(
+                        f"http://trip-service:8002/api/vehicles/?owner_id={user_id}",
+                        timeout=5
+                    )
                     if vr.status_code == 200 and vr.json():
                         v = vr.json()[0]
-                        for k in ('brand','model','year','color','license_plate','seats'):
-                            user_data[f'vehicle_{k}'] = v.get(k,'-')
+                        for k in ('brand', 'model', 'year', 'color', 'license_plate', 'seats'):
+                            user_data[f'vehicle_{k}'] = v.get(k, '-')
+ 
                 request.session['user'] = user_data
                 messages.success(request, 'Connexion réussie!')
                 return redirect('home')
@@ -283,31 +461,39 @@ def logout_view(request):
 def profile(request):
     if not request.session.get('access_token'):
         return redirect('login')
-    
+ 
     user_id = request.session.get('user', {}).get('id')
     if not user_id:
         return redirect('login')
-    
+ 
     try:
-        # Appel direct à l'API auth-service
         resp = requests.get(
             f"http://auth-service:8081/api/auth/users/{user_id}/basic/",
             timeout=5
         )
         if resp.status_code == 200:
             user_data = resp.json()
-            # La réponse contient déjà city, bio, rating, etc.
+ 
+            # Photo : garder /media/profiles/xxx.jpg tel quel (servi par media_proxy)
+            # Mettre None si c'est la photo par défaut → affiche les initiales
+            pic = user_data.get('profile_picture', '')
+            user_data['profile_picture'] = pic if (pic and 'default' not in pic) else None
+ 
+            # Mettre à jour la session pour que la navbar soit synchro
+            s = request.session.get('user', {})
+            s['profile_picture'] = user_data['profile_picture']
+            request.session['user'] = s
+ 
             return render(request, 'profile.html', {'user': user_data})
+ 
         else:
             messages.error(request, 'Impossible de charger le profil')
+ 
     except Exception as e:
         print(f"Erreur profil: {e}")
         messages.error(request, 'Erreur de connexion')
-    
-    # Fallback : utiliser les données de session
+ 
     return render(request, 'profile.html', {'user': request.session.get('user', {})})
-
-
 # ──────────────────────────────────────────────────────────────────────────────
 # TRAJETS — FIX : lire depuis la DB directement + pas de N+1 HTTP
 # ──────────────────────────────────────────────────────────────────────────────
@@ -426,54 +612,122 @@ def search_trips(request):
 
 
 def trip_detail(request, trip_id):
-    """
-    On lit le trajet depuis la DB pour ne pas dépendre du HTTP trip-service.
-    """
-    all_trips = _get_all_trips_from_db()
-    trip = next((t for t in all_trips if t['id'] == trip_id), None)
-
-    if not trip:
-        # Fallback HTTP si pas en DB
-        try:
-            resp = requests.get(f"http://trip-service:8002/api/trips/{trip_id}/", timeout=10)
-            if resp.status_code == 200:
-                trip = resp.json()
-        except Exception:
-            pass
-
+    # ── Lire depuis la DB ──────────────────────────────────────
+    trip = None
+    try:
+        conn = _get_db_conn('trip_db')
+        cur  = conn.cursor()
+        cur.execute("""
+            SELECT t.id, t.driver_id, t.price_per_seat, t.total_seats,
+                   t.available_seats, t.departure_datetime, t.status, t.description,
+                   c1.name_fr, c2.name_fr,
+                   t.departure_city_id, t.arrival_city_id
+            FROM   trajet_app_ride t
+            LEFT JOIN trajet_app_city c1 ON t.departure_city_id = c1.id
+            LEFT JOIN trajet_app_city c2 ON t.arrival_city_id   = c2.id
+            WHERE  t.id = %s
+        """, (trip_id,))
+        row = cur.fetchone()
+        cur.close(); conn.close()
+ 
+        if row:
+            did   = row[1]
+            names = _fetch_user_names([did])
+ 
+            # Photo du conducteur depuis auth_db
+            driver_photo = None
+            try:
+                conn2 = _get_db_conn('auth_db')
+                cur2  = conn2.cursor()
+                cur2.execute(
+                    "SELECT p.profile_picture, u.rating_as_driver "
+                    "FROM users_user u "
+                    "LEFT JOIN users_profile p ON p.user_id = u.id "
+                    "WHERE u.id = %s", (did,)
+                )
+                prow = cur2.fetchone()
+                cur2.close(); conn2.close()
+                if prow:
+                    pic = prow[0] or ''
+                    driver_photo = pic if (pic and 'default' not in pic) else None
+            except Exception as e:
+                print(f"Erreur photo conducteur: {e}")
+ 
+            # Ratings
+            driver_avg_rating   = None
+            driver_rating_count = 0
+            try:
+                conn3 = _get_db_conn('booking_db')
+                cur3  = conn3.cursor()
+                cur3.execute("""
+                    SELECT ROUND(AVG(rating)::numeric,1), COUNT(*)
+                    FROM   booking_rating WHERE driver_id = %s
+                """, (did,))
+                rrow = cur3.fetchone()
+                cur3.close(); conn3.close()
+                if rrow and rrow[0]:
+                    driver_avg_rating   = float(rrow[0])
+                    driver_rating_count = int(rrow[1])
+            except Exception as e:
+                print(f"Erreur ratings trip_detail: {e}")
+ 
+            dep_dt = str(row[5]) if row[5] else ''
+            date_only = dep_dt[:10]
+            time_only = dep_dt[11:16] if len(dep_dt) >= 16 else ''
+            parts     = date_only.split('-')
+            date_fr   = f"{parts[2]}/{parts[1]}/{parts[0]}" if len(parts) == 3 else date_only
+ 
+            trip = {
+                'id':                  row[0],
+                'driver_id':           did,
+                'price_per_seat':      float(row[2]) if row[2] else 0,
+                'total_seats':         row[3] or 0,
+                'available_seats':     row[4] or 0,
+                'departure_datetime':  dep_dt,
+                'status':              row[6] or 'active',
+                'description':         row[7] or '',
+                'departure_city_name': row[8] or 'Inconnue',
+                'arrival_city_name':   row[9] or 'Inconnue',
+                # ── CRUCIAL pour le modal de modification ──
+                'departure_city_id':   row[10],
+                'arrival_city_id':     row[11],
+                # ── Formatage date/heure ──
+                'date_only':           date_only,
+                'time_only':           time_only,
+                'date_fr':             date_fr,
+                # ── Conducteur ──
+                'driver_name':         names.get(did, f'Conducteur {did}'),
+                'driver_photo':        driver_photo,
+                'driver_avg_rating':   driver_avg_rating,
+                'driver_rating_count': driver_rating_count,
+                # ── Pour les points de siège ──
+                'seats_range':         list(range(1, (row[3] or 0) + 1)),
+            }
+    except Exception as e:
+        print(f"Erreur trip_detail DB: {e}")
+ 
     if not trip:
         messages.error(request, 'Trajet non trouvé')
         return redirect('search_trips')
-
-    # Formate date/heure
-    dep_datetime = trip.get('departure_datetime', '')
-    if dep_datetime:
-        trip['date_only'] = dep_datetime[:10]
-        trip['time_only'] = dep_datetime[11:16] if len(dep_datetime) >= 16 else ''
-        parts = trip['date_only'].split('-')
-        trip['date_fr'] = f"{parts[2]}/{parts[1]}/{parts[0]}" if len(parts) == 3 else trip['date_only']
-    else:
-        trip['date_only'] = trip['time_only'] = trip['date_fr'] = ''
-
-    # ✅ AJOUTE CETTE PARTIE POUR RÉCUPÉRER LA PHOTO ET LES INFOS DU CONDUCTEUR
-    driver_id = trip.get('driver_id')
-    if driver_id:
-        try:
-            user_resp = requests.get(
-                f"http://auth-service:8081/api/auth/users/{driver_id}/basic/",
-                timeout=5
-            )
-            if user_resp.status_code == 200:
-                user_data = user_resp.json()
-                trip['driver_photo'] = user_data.get('profile_picture')
-                trip['driver_name'] = f"{user_data.get('first_name', '')} {user_data.get('last_name', '')}".strip()
-                trip['driver_avg_rating'] = user_data.get('rating_as_driver')
-                trip['driver_rating_count'] = user_data.get('trips_completed')
-        except Exception as e:
-            print(f"Erreur récupération conducteur: {e}")
-
-    return render(request, 'trip_detail.html', {'trip': trip})
-
+ 
+    # ── Villes pour le modal modifier ──────────────────────────
+    cities = []
+    try:
+        cr = requests.get("http://trip-service:8002/api/cities/", timeout=5)
+        if cr.status_code == 200:
+            cities = cr.json()
+    except Exception as e:
+        print(f"Erreur cities: {e}")
+ 
+    # ── is_owner : comparaison forcée en int ───────────────────
+    current_user_id = request.session.get('user', {}).get('id')
+    is_owner = (current_user_id is not None) and (int(current_user_id) == int(trip['driver_id']))
+ 
+    return render(request, 'trip_detail.html', {
+        'trip':     trip,
+        'cities':   cities,
+        'is_owner': is_owner,   # ← utilisé dans le template
+    })
 
 def publish_trip(request):
     if not request.session.get('access_token'):
@@ -896,15 +1150,15 @@ def admin_dashboard(request):
     if request.session.get('user',{}).get('role') != 'admin':
         messages.error(request, 'Accès non autorisé'); return redirect('home')
 
-    all_trips    = _get_all_trips_from_db()
-    all_users    = []
+    all_trips = _get_all_trips_from_db()
+    all_users = []
     all_bookings = []
     drivers_list = []
 
     # Utilisateurs
     try:
         conn = _get_db_conn('auth_db')
-        cur  = conn.cursor()
+        cur = conn.cursor()
         cur.execute("SELECT id, first_name, last_name, email, role, is_active FROM users_user")
         for r in cur.fetchall():
             u = {'id':r[0],'first_name':r[1] or '','last_name':r[2] or '',
@@ -918,14 +1172,12 @@ def admin_dashboard(request):
     # Réservations
     try:
         conn = _get_db_conn('booking_db')
-        cur  = conn.cursor()
+        cur = conn.cursor()
         cur.execute("SELECT id, user_id, driver_id, amount, status, payment_method, transaction_id FROM booking_booking")
         bk_rows = cur.fetchall()
         cur.close(); conn.close()
-
         bk_uid = list({r[1] for r in bk_rows} | {r[2] for r in bk_rows})
         bk_names = _fetch_user_names(bk_uid)
-
         for r in bk_rows:
             all_bookings.append({
                 'id': r[0], 'user_id': r[1], 'driver_id': r[2],
@@ -934,19 +1186,26 @@ def admin_dashboard(request):
                 'payment_method': r[5] or 'cash',
                 'transaction_id': r[6],
                 'passenger_name': bk_names.get(r[1], f'Passager {r[1]}'),
-                'driver_name':    bk_names.get(r[2], f'Conducteur {r[2]}'),
+                'driver_name': bk_names.get(r[2], f'Conducteur {r[2]}'),
             })
     except Exception as e:
         print(f"Erreur bookings: {e}")
 
     # Données graphique
+        # Données graphique - 7 derniers jours (du plus ancien au plus récent)
     day_counts = [0]*7
+    today = datetime.now().date()
     for t in all_trips:
         try:
-            dt  = datetime.fromisoformat(t['departure_datetime'][:19])
-            day_counts[dt.weekday()] += 1
+            trip_date = datetime.fromisoformat(t['departure_datetime'][:19]).date()
+            days_ago = (today - trip_date).days
+            if 0 <= days_ago <= 6:
+                day_counts[days_ago] += 1
         except Exception:
             pass
+    
+    # Inverser pour avoir Lundi au plus récent et Dimanche au plus ancien
+    day_counts = list(reversed(day_counts))
 
     city_counter = {}
     for t in all_trips:
@@ -955,21 +1214,84 @@ def admin_dashboard(request):
             city_counter[c] = city_counter.get(c,0)+1
     top_cities = sorted(city_counter.items(), key=lambda x:x[1], reverse=True)[:7]
 
+    # ✅ CALCUL DES STATISTIQUES AVANCÉES
+    # Taux d'occupation
+    total_seats = sum(t.get('total_seats', 0) for t in all_trips)
+    occupied_seats = sum(t.get('total_seats', 0) - t.get('available_seats', 0) for t in all_trips)
+    occupancy_rate = round((occupied_seats / total_seats) * 100) if total_seats > 0 else 0
+
+    # Note moyenne des conducteurs (rating_as_driver)
+    ratings = []
+    for u in all_users:
+        if u.get('role') == 'driver':
+            # Récupérer la note depuis la base de données
+            try:
+                conn2 = _get_db_conn('auth_db')
+                cur2 = conn2.cursor()
+                cur2.execute("SELECT rating_as_driver FROM users_profile WHERE user_id = %s", (u['id'],))
+                row = cur2.fetchone()
+                if row and row[0]:
+                    ratings.append(float(row[0]))
+                cur2.close(); conn2.close()
+            except:
+                pass
+    avg_rating = round(sum(ratings) / len(ratings), 1) if ratings else 0
+
+    # Taux d'annulation
+    cancelled_trips = sum(1 for t in all_trips if t.get('status') == 'cancelled')
+    cancel_rate = round((cancelled_trips / len(all_trips)) * 100, 1) if all_trips else 0
+
     chart_data = {
-        'allTrips':    all_trips,
-        'allUsers':    all_users,
+        'allTrips': all_trips,
+        'allUsers': all_users,
         'allBookings': all_bookings,
         'driversList': drivers_list,
-        'tripLabels':  ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'],
-        'tripData':    day_counts,
-        'cityLabels':  [c[0] for c in top_cities],
-        'cityData':    [c[1] for c in top_cities],
-        'confirmed':   sum(1 for b in all_bookings if b['status']=='confirmed'),
-        'pending':     sum(1 for b in all_bookings if b['status']=='pending'),
-        'cancelled':   sum(1 for b in all_bookings if b['status']=='cancelled'),
+        'tripLabels': ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'],
+        'tripData': day_counts,
+        'cityLabels': [c[0] for c in top_cities],
+        'cityData': [c[1] for c in top_cities],
+        'confirmed': sum(1 for b in all_bookings if b['status']=='confirmed'),
+        'pending': sum(1 for b in all_bookings if b['status']=='pending'),
+        'cancelled': sum(1 for b in all_bookings if b['status']=='cancelled'),
+        # ✅ AJOUTE CES LIGNES
+        'occupancy_rate': occupancy_rate,
+        'avg_rating': avg_rating,
+        'cancel_rate': cancel_rate,
+        'total_users': len(all_users)
     }
+      # Récupérer les données de remboursements
+       # Récupérer les données de remboursements
+    refunds_list = []
+    no_show_passengers = 0
+    no_show_drivers = 0
+    total_refunded_amount = 0
+    
+    for b in all_bookings:
+        if b.get('status') in ['refunded', 'cancelled'] and b.get('amount', 0) > 0:
+            refunds_list.append({
+                'id': b.get('id'),
+                'passenger_name': b.get('passenger_name'),
+                'driver_name': b.get('driver_name'),
+                'amount': b.get('amount'),
+                'status': b.get('status')
+            })
+            total_refunded_amount += b.get('amount', 0)
+        
+        # Vérifier les no-show (selon la raison d'annulation)
+        cancellation_reason = b.get('cancel_reason', '')
+        if cancellation_reason == 'passenger_no_show':
+            no_show_passengers += 1
+        elif cancellation_reason == 'driver_no_show':
+            no_show_drivers += 1
+    
+    # Ajouter ces données au chart_data existant
+    chart_data['refunds'] = refunds_list
+    chart_data['total_refunded'] = total_refunded_amount
+    chart_data['no_show_passengers'] = no_show_passengers
+    chart_data['no_show_drivers'] = no_show_drivers
+    chart_data['penalties'] = []  # Liste vide pour l'instant
+    
     return render(request, 'admin_dashboard.html', {'chart_data': chart_data})
-
 
 # ──────────────────────────────────────────────────────────────────────────────
 # ACTIONS ADMIN
@@ -1176,3 +1498,9 @@ def admin_get_stats_advanced(request):
 @csrf_exempt
 def admin_global_refund(request):
     return redirect('admin_dashboard')
+def health_check(request):
+    return JsonResponse({
+        'status': 'healthy',
+        'service': 'frontend',
+        'timestamp': datetime.now().isoformat()
+    })

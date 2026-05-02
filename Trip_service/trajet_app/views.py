@@ -2,12 +2,14 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.http import JsonResponse
+from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from .models import City, Vehicle, Ride, Stopover
 from .serializers import (
     CitySerializer, VehicleSerializer, RideListSerializer,
     RideDetailSerializer, RideCreateSerializer, StopoverSerializer
+
 )
 from django.db.models import Q
 from django.db import models
@@ -19,6 +21,7 @@ def health_check(request):
 
 
 class ReserveTripView(APIView):
+    permission_classes = [IsAuthenticated]
     def put(self, request, pk):
         ride = get_object_or_404(Ride, id=pk)
         seats_requested = int(request.data.get("seats", 1))
@@ -50,7 +53,7 @@ class CityListView(APIView):
 
 class VehicleListCreateView(APIView):
     """List all vehicles for current driver or create a new vehicle"""
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
     
     def get(self, request):
         driver_id = request.query_params.get('driver_id')
@@ -124,7 +127,7 @@ class VehicleCreateView(APIView):
 
 class RideCreateView(APIView):
     """Create a new ride (driver only)"""
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
     
     def post(self, request):
         serializer = RideCreateSerializer(data=request.data)
@@ -139,7 +142,7 @@ class RideCreateView(APIView):
 
 class RideListView(APIView):
     """List all upcoming scheduled rides"""
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
     
     def get(self, request):
         rides = Ride.objects.filter(
@@ -233,7 +236,7 @@ class DriverRidesView(APIView):
 
 class RideUpdateView(APIView):
     """Update an existing ride (driver only)"""
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
     
     def put(self, request, pk):
         try:
@@ -250,7 +253,7 @@ class RideUpdateView(APIView):
 
 class RideDeleteView(APIView):
     """Permanently delete a ride"""
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
     
     def delete(self, request, pk):
         try:

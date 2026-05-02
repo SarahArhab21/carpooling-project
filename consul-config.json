@@ -1,0 +1,52 @@
+{
+  "services": [
+    {
+      "id": "auth-service",
+      "name": "auth-service",
+      "address": "172.20.0.10",
+      "port": 8081,
+      "tags": ["traefik.enable=true", "traefik.http.routers.auth.rule=PathPrefix(`/auth`)"],
+      "check": {"http": "http://172.20.0.10:8081/health/", "interval": "10s"}
+    },
+    {
+      "id": "trip-service",
+      "name": "trip-service",
+      "address": "172.20.0.11",
+      "port": 8002,
+      "tags": ["traefik.enable=true", "traefik.http.routers.trip.rule=PathPrefix(`/trip`)"],
+      "check": {"http": "http://172.20.0.11:8002/api/health/", "interval": "10s"}
+    },
+    {
+      "id": "booking-service",
+      "name": "booking-service",
+      "address": "172.20.0.12",
+      "port": 8011,
+      "tags": ["traefik.enable=true", "traefik.http.routers.booking.rule=PathPrefix(`/booking`)"],
+      "check": {"http": "http://172.20.0.12:8011/health/", "interval": "10s"}
+    },
+    {
+      "id": "payment-service",
+      "name": "payment-service",
+      "address": "172.20.0.13",
+      "port": 8000,
+      "tags": ["traefik.enable=true", "traefik.http.routers.payment.rule=PathPrefix(`/payment`)"],
+      "check": {"http": "http://172.20.0.13:8000/health/", "interval": "10s"}
+    },
+    {
+      "id": "search-service",
+      "name": "search-service",
+      "address": "172.20.0.14",
+      "port": 8003,
+      "tags": ["traefik.enable=true", "traefik.http.routers.search.rule=PathPrefix(`/search`)"],
+      "check": {"http": "http://172.20.0.14:8003/health/", "interval": "10s"}
+    },
+    {
+      "id": "frontend",
+      "name": "frontend",
+      "address": "172.20.0.15",
+      "port": 8000,
+      "tags": ["traefik.enable=true", "traefik.http.routers.frontend.rule=PathPrefix(`/`)"],
+      "check": {"http": "http://172.20.0.15:8000/health/", "interval": "10s"}
+    }
+  ]
+}
